@@ -2,12 +2,26 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import 'bootstrap/dist/css/bootstrap.css';
 import './index.css';
-import App from './App';
+import Home from './Home/home';
 import reportWebVitals from './reportWebVitals';
+import Login from './Login/Login';
+import Order from './Order/order';
+import Order_Form from './Order_Form/order_form';
+import { BrowserRouter as Router, Switch, Route, Link, withRouter } from 'react-router-dom';
+// import local css and js here
+// format: import '/css/css.css';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <h1>Amboy's Food Stall</h1>
+    <Router>
+      <Switch>
+        <Route path="/" exact component={Home} />
+        <Route path="/login" exact component={Login} />
+        <Route path="/order" exact component={Order} />
+        <Route path="/order_form" exact component={withRouter(Order_Form)} />
+      </Switch>
+    </Router>
   </React.StrictMode>,
   document.getElementById('root')
 );
