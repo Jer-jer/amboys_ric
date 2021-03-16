@@ -3,17 +3,22 @@ import Login from '../Login/Login';
 import Order from '../Order/order';
 import Order_Form from '../Order_Form/order_form';
 import { BrowserRouter as Router, Switch, Route, Link, withRouter } from 'react-router-dom';
+import { Button } from '@material-ui/core';
 
 function App() {
   return (
     <div>
       <Link to="/login">
-        <button type="button" className="btn btn-primary">Login</button>
+        <Button variant="contained" color="primary">
+          Login
+      </Button>
       </Link>
       <br />
       <br />
       <Link to="/order">
-        <button type="button" className="btn btn-primary">Order</button>
+        <Button variant="contained" color="primary">
+          Order
+      </Button>
       </Link>
     </div>
   );

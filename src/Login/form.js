@@ -1,14 +1,17 @@
 import React from 'react';
-import Input from './input';
+import FormControl from './form_control';
+import { Button } from '@material-ui/core';
 
-function Form(){
-    return(
+function Form() {
+    return (
         <form>
-            <Input type="email" label="Email Address"/>
-            <Input type="password" label="Password"/>
-            <button type="submit" className="btn btn-primary">Submit</button>
+            <FormControl type="email" label="Email Address"/>
+            <br />
+            <FormControl type="password" label="Password"/>
+            <br />
+            <Button variant="contained" color="primary">Submit</Button>
         </form>
-    ); 
+    );
 }
 
 export default Form;
