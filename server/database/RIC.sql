@@ -7,7 +7,7 @@ CREATE TABLE employee(
 	employeeLname varchar(20) NOT NULL,
 	employeeFname varchar(15) NOT NULL,
 	employeeEmail varchar(50) NOT NULL,
-	employeePassword varchar(20) NOT NULL,
+	employeePassword varchar(500) NOT NULL,
 	contactNo varchar(20) NOT NULL,
 	jobTitle enum('manager', 'cashier', 'waiter') NOT NULL,
 

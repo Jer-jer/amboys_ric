@@ -9,6 +9,7 @@ import NotificationsIcon from '@material-ui/icons/Notifications';
 
 // Custom imports
 import Inventory from '../../Inventory/content';
+import Home from '../../Home/home'
 
 function TabPanel(props) {
     const { children, value, index } = props;
@@ -81,7 +82,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function PrimarySearchAppBar() {
+export default function AppBarManager({ userID, signOut }) {
     const classes = useStyles();
     const theme = useTheme();
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -101,6 +102,10 @@ export default function PrimarySearchAppBar() {
         setValue(newValue);
     };
 
+    // const logOut = () => {
+    //     signOut();
+    // };
+
     const menuId = 'primary-search-account-menu';
     const renderMenu = (
         <Menu
@@ -114,7 +119,7 @@ export default function PrimarySearchAppBar() {
         >
             <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
             <MenuItem onClick={handleMenuClose}>My account</MenuItem>
-            <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
+            <MenuItem onClick={signOut}>Logout</MenuItem>
         </Menu>
     );
 
