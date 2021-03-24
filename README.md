@@ -1,18 +1,25 @@
-# Getting Started with Create React App
+# RIC System for Amboy's Food Stall
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Project is divided by two folders:
+[client] - Front-end
+[server] - Back-end
 
 ## Available Scripts
 
-In the project directory, you can run:
+You have to run both client and server
 
-### `npm start`
+For front-end use **must access the client folder**:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### `npm start` 
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+For back-end use **must access the server folder**:
+
+### `nodemon`
+
+Front-end runs at [http://localhost:3000](http://localhost:3000)
+Back-end runs at [http://localhost:3001](http://localhost:3001)
+
+You don't have to open the localhost of back-end since it is connected in front-end
 
 ### `npm test`
 
@@ -39,32 +46,32 @@ Instead, it will copy all the configuration files and the transitive dependencie
 
 You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
-## Learn More
+## Programming Languages
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+**HTML**
+**CSS**
+**Javascript**
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Software Stack
 
-### Code Splitting
+[MERN]
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+**MySql**
+**Express**
+**React.js**
+**Node.js**
 
-### Analyzing the Bundle Size
+Used **Git**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### Softwares Used
 
-### Making a Progressive Web App
+**Visual Studio Code**
+**Xampp**
+**Google Chrome**
+**Brave**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
 
-### Advanced Configuration
+## Notes
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+In AppBar component I used *position="fixed"*. You can use *position="sticky"* but it does not work
+on IE11 (you don't use that right?)
