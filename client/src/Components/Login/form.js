@@ -11,7 +11,7 @@ function Form() {
     const [password, setPassword] = useState("");
 
     // This is a sentinel if a user is logged in
-    const [userID, setUserID] = useState(0);
+    const [user, setUser] = useState(null);
 
     const [loginStatus, setLoginStatus] = useState("");
 
@@ -22,7 +22,7 @@ function Form() {
         setPassword(e.target.value);
     };
 
-    Axios.default.withCredentials = true;
+    // Axios.defaults.withCredentials = true;
 
     //This is for register soon
     // const register = () => {
@@ -39,37 +39,94 @@ function Form() {
     //     });
     // };
 
-    const logIn = () => {
-        Axios.post("http://localhost:3001/loggingin", {
-            email: email,
-            password: password
-        }).then((response) => {
-            if (response.data.message) {
-                setLoginStatus(response.data.message);
-            } else {
-                setLoginStatus(response.data[0].employeeLname);
-                // setUserID(response.data[0].employeeID);
-                // Home(userID);
-            }
-        });
-    }
-
-    useEffect(() => {
-        Axios.get("http://localhost:3001/loggingin").then((response) => {
-            if(response.data.loggedIn == true){
-                setLoginStatus(response.data.user[0].employeeLname);
-            }
+    // const logIn = () => {
+    //     Axios.post("http://localhost:3001/login",
+    //         {
+    //             email: email,
+    //             password: password
+    //         },
+    //         {
+    //             withCredentials: true,
+    //             crossorigin: true
+    //         },
+    //         {
+    //             headers: {
+    //                 'Content-Type': 'application/json'
+    //             }
+    //         }).then((response) => {
+    //             if (response.data.message) {
+    //                 setLoginStatus(response.data.message);
+    //             } else {
+    //                 setLoginStatus(response.data[0].employeeLname);
+    //                 // setUserID(response.data[0].employeeID);
+    //                 // Home(userID);
+    //             }
+    //         });
+    // }
+    const get = () => { 
+        Axios({
+            method: 'GET',
+            withCredentials: true,
+            url: "http://localhost:3001/user",
         })
-    }, [])
+        .then(res => {
+            console.log(res);
+        })
+    };
+    const login = () => { 
+        Axios({
+            method: 'POST',
+            data: {
+                email: email,
+                password: password
+            },
+            withCredentials: true,
+            url: "http://localhost:3001/login",
+        })
+        .then((res) => {
+            console.log(res);
+            // setUser(res.data);
+        })
+     };
+    // const reg = () => {
+    //     Axios({
+    //         method: 'POST',
+    //         data: {
+    //             empID: empID,
+    //             empLname: empLname,
+    //             empFname: empFname,
+    //             empEmail: empEmail,
+    //             empPass: empPass,
+    //             contact: contact,
+    //             job: job
+    //         },
+    //         withCredentials: true,
+    //         url: "http://localhost:3001/register",
+    //     })
+    //     .then(res => {
+    //         console.log(res);
+    //     })
+    // };
+
+    // useEffect(() => {
+    //     Axios({
+    //         method: 'GET',
+    //         withCredentials: true,
+    //         url: "http://localhost:3001/user",
+    //     })
+    //     .then(res => {
+    //         console.log(res.data);
+    //     })
+    // }, []);
 
     return (
-        <form>
+        <form onSubmit={login}>
             <FormControl type="email" label="Email Address" handle={handleEmail} />
             <br />
             <FormControl type="password" label="Password" handle={handlePassword} />
             <br />
-            <Button variant="contained" color="primary" onClick={logIn}>Submit</Button>
-            <h1>{loginStatus}</h1>
+            <Button variant="contained" color="primary" onClick={login}>Submit</Button>
+            <Button variant="contained" color='primary' onClick={get}>Get User</Button>
         </form>
     );
 }

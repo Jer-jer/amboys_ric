@@ -19,8 +19,8 @@ export default function FormCont({type, label, handle}) {
 
     return (
         <FormControl>
-            <InputLabel htmlFor="my-input">{label}</InputLabel>
-            <Input type={type} id="my-input" aria-describedby="my-helper-text" onChange={handle} />
+            <InputLabel>{label}</InputLabel>
+            <Input type={type} aria-describedby="my-helper-text" onChange={handle} />
             {subtext}
         </FormControl>
     );

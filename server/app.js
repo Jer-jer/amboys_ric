@@ -6,30 +6,40 @@ const nanoid = require("nanoid")
 const bcrypt = require("bcrypt")
 const cookieParser = require("cookie-parser")
 const session = require("express-session")
+const passport = require("passport")
+const passportLocal = require("passport-local").Strategy
+const flash = require("connect-flash")
 
 const app = express()
 const saltRounds = 10 //For encryption
+var user //For holding the user or sentinel
 
 app.use(express.json())
+app.use(bodyParser.json())
+app.use(express.urlencoded({ extended: true }))
+app.use(flash())
 app.use(cors({
     origin: ("http://localhost:3000"),
     methods: ("GET", "POST"),
     credentials: true,
+    allowedHeaders: ['sessionId', 'Content-Type'],
+    exposedHeaders: ['sessionId']
 
 }))
-app.use(cookieParser())
-app.use(bodyParser.urlencoded({ extended: true }))
-app.use(bodyParser.json())
-
 app.use(session({
     key: "userID",
     secret: "infoman2",
-    resave: false,
-    saveUninitialized: false,
+    resave: true,
+    saveUninitialized: true,
     cookie: {
         expires: 60 * 60 * 24,
+        secure: true
     },
 }))
+app.use(cookieParser("infoman2"))
+app.use(passport.initialize());
+app.use(passport.session());
+require("./routes/passportConfig")(passport)
 
 const db = mysql.createConnection({
     host: "localhost",
@@ -39,6 +49,9 @@ const db = mysql.createConnection({
     multipleStatements: true
 })
 
+//=========================== MIDDLEWARE DONE ===========================//
+
+//Routes
 app.post('/register', (req, res) => {
     const empID = req.body.empID;
     const empLname = req.body.empLname;
@@ -50,29 +63,43 @@ app.post('/register', (req, res) => {
 
     toLowerCase(job);
 
-    bcrypt.hash(empPass, saltRounds, (err, hash) => {
-        if (err) throw err
+    // with encryption
+    // bcrypt.hash(empPass, saltRounds, (err, hash) => {
+    //     if (err) throw err
 
-        db.query("INSERT INTO employee (employeeID, employeeLname, employeeFname, employeeEmail, employeePassword, contactNo, jobTitle) VALUES (?,?,?,?,?)",
-            [empID, empLname, empFname, empEmail, hash, contact, job],
-            (err, result) => {
-                if (err) throw err
-            })
+    //     db.query("INSERT INTO employee (employeeID, employeeLname, employeeFname, employeeEmail, employeePassword, contactNo, jobTitle) VALUES (?,?,?,?,?)",
+    //         [empID, empLname, empFname, empEmail, hash, contact, job],
+    //         (err, result) => {
+    //             if (err) throw err
+    //         })
 
-    })
+    // })
+
+    db.query("INSERT INTO employee (employeeID, employeeLname, employeeFname, employeeEmail, employeePassword, contactNo, jobTitle) VALUES (?,?,?,?,?)",
+        [empID, empLname, empFname, empEmail, empPass, contact, job],
+        (err, result) => {
+            if (err) throw err
+        })
 })
 
-app.get('/loggingin', (req, res) => {
-    if (req.session.user) {
-        res.send({ loggedIn: true, user: req.session.user })
-    } else {
-        res.send({ loggedIn: false })
-    }
-})
-
-app.post('/loggingin', (req, res) => {
+app.post('/login', (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
+
+    passport.authenticate('local-login', (err, user, info) => {
+        if (err) throw err
+
+        if(!user){
+            res.send("No such employee exists")
+        }else{
+            req.logIn(user, err => {
+                if (err) throw err
+                res.send('Successfully Authenticated')
+                // console.log(req.user[0])
+            })
+        }
+    })(req, res, next)
+
 
     // FOR BCRYPT ENCRYPTION
     // db.query(
@@ -96,24 +123,41 @@ app.post('/loggingin', (req, res) => {
     //         }
     // })
 
-    db.query(
-        "SELECT * FROM employee WHERE employeeEmail = ? AND employeePassword = ?;",
-        [email, password],
-        (err, result) => {
-            if (err) {
-                res.send({ err: err });
-            }
+    // db.query(
+    //     "SELECT * FROM employee WHERE employeeEmail = ? AND employeePassword = ?;",
+    //     [email, password],
+    //     (err, result) => {
+    //         if (err) {
+    //             res.send({ err: err });
+    //         }
 
-            if (result.length > 0) {
-                req.session.user = result
-                res.send(result);
-            } else {
-                res.send({ message: "Wrong username/password" });
-            }
+    //         if (result.length > 0) {
+    //             // user = result
+    //             req.session.user = result
+    //             console.log(req.session.user)
+    //             res.send(result)
+    //         } else {
+    //             res.send({ message: "Wrong username/password" });
+    //         }
 
-        })
+    //     }
+    // )
 })
 
+app.get('/user', (req, res) => {
+    res.send(req.user)
+    // if (req.session.user != undefined) {
+    //     // req.session.user = user
+    //     console.log("Logged in")
+    //     res.send({ loggedIn: true, user: req.session.user })
+    // } else {
+    //     console.log("Not Logged in")
+    //     res.send({ loggedIn: false })
+    // }
+})
+
+//Start Server
 app.listen(3001, () => {
     console.log("Running on port 3001")
 })
+

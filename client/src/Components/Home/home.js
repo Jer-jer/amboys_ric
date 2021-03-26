@@ -7,14 +7,7 @@ import '../../App.css';
 import Logo from '../Logo(temp)/logo'
 import Inventory from '../Inventory/inventory';
 
-export default function Home({ userID }) {
-  // This is a sentinel if a user is logged in
-  const [user, setUser] = useState("");
-
-  const logOut = (e) => {
-    e.target.value = "";
-    setUser(e.target.value);
-  };
+export default function Home({ user }) {
 
   const notLoggedin = (
     <div className="home">
@@ -35,8 +28,8 @@ export default function Home({ userID }) {
 
   return (
     <div>
-      {(user != "") ? (
-        Inventory(user, logOut)
+      {(user != undefined) ? (
+        Inventory()
       ) : (
         notLoggedin
       )}
