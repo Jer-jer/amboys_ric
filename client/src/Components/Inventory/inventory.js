@@ -1,10 +1,10 @@
 import React from 'react';
 import AppBar from '../AppBars/AppBar(Manager)/appbar';
 
-export default function EmployeeHome({ userID, logOut }) {
+export default function EmployeeHome({ user }) {
     return (
         <div>
-            <AppBar userID={userID} signOut={logOut}/>
+            <AppBar user={user} />
         </div>
     );
 }

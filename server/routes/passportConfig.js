@@ -14,9 +14,9 @@ module.exports = (passport) => {
         'local-login',
         new localStrategy(
             {
-                usernameField : 'email',
-                passwordField : 'password',
-                passReqToCallback : true
+                usernameField: 'email',
+                passwordField: 'password',
+                passReqToCallback: true
             },
             (req, email, password, done) => {
                 db.query(
@@ -25,12 +25,12 @@ module.exports = (passport) => {
                     (err, user) => {
                         if (err) throw (err)
 
-                        if(!user.length) return done(null, false)
+                        if (!user.length) return done(null, false)
 
                         if ((user[0].employeePassword == password)) {
                             return done(null, user)
                         } else {
-                            return done(null, false, req.flash('loginMessage', 'Wrong username/password'))
+                            return done(null, false, { message: "Wrong email/password" })
 
                         }
                         // if (result.length > 0) {
@@ -52,11 +52,10 @@ module.exports = (passport) => {
     })
 
     passport.deserializeUser((id, cb) => {
-        db.query("SELECT * from employees WHERE employeeID = ?;",
+        db.query("SELECT * from employee WHERE employeeID = ?;",
             [id],
             (err, result) => {
                 if (err) throw err
-                console.log(result[0])
                 cb(err, result[0])
             })
     })

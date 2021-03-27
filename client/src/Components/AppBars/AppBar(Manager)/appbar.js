@@ -6,6 +6,8 @@ import SearchIcon from '@material-ui/icons/Search';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
+import Axios from 'axios';
+import { useHistory } from 'react-router-dom';
 
 // Custom imports
 import Inventory from '../../Inventory/content';
@@ -82,11 +84,12 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function AppBarManager({ userID, signOut }) {
+export default function AppBarManager({ user }) {
     const classes = useStyles();
     const theme = useTheme();
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [value, setValue] = React.useState(0);
+    let history = useHistory();
 
     const isMenuOpen = Boolean(anchorEl);
 
@@ -102,9 +105,19 @@ export default function AppBarManager({ userID, signOut }) {
         setValue(newValue);
     };
 
-    // const logOut = () => {
-    //     signOut();
-    // };
+    const logOut = () => {
+        Axios({
+            method: 'GET',
+            withCredentials: true,
+            url: "http://localhost:3001/logout",
+          })
+          .then(res => {
+              history.push('/');
+          })
+          .catch((err) => {
+              console.log(err);
+          })
+    };
 
     const menuId = 'primary-search-account-menu';
     const renderMenu = (
@@ -119,7 +132,7 @@ export default function AppBarManager({ userID, signOut }) {
         >
             <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
             <MenuItem onClick={handleMenuClose}>My account</MenuItem>
-            <MenuItem onClick={signOut}>Logout</MenuItem>
+            <MenuItem onClick={logOut}>Logout</MenuItem>
         </Menu>
     );
 

@@ -7,16 +7,17 @@ const bcrypt = require("bcrypt")
 const cookieParser = require("cookie-parser")
 const session = require("express-session")
 const passport = require("passport")
-const passportLocal = require("passport-local").Strategy
 const flash = require("connect-flash")
+const logOut = require('express-passport-logout')
 
 const app = express()
 const saltRounds = 10 //For encryption
 var user //For holding the user or sentinel
 
 app.use(express.json())
+app.use(cookieParser("infoman2"))
 app.use(bodyParser.json())
-app.use(express.urlencoded({ extended: true }))
+app.use(bodyParser.urlencoded({ extended: true }))
 app.use(flash())
 app.use(cors({
     origin: ("http://localhost:3000"),
@@ -27,16 +28,15 @@ app.use(cors({
 
 }))
 app.use(session({
-    key: "userID",
+    key: "user",
     secret: "infoman2",
     resave: true,
     saveUninitialized: true,
-    cookie: {
-        expires: 60 * 60 * 24,
-        secure: true
-    },
+    // cookie: {
+    //     expires: 60 * 60 * 24, TANG INA MO
+    //     secure: true
+    // },
 }))
-app.use(cookieParser("infoman2"))
 app.use(passport.initialize());
 app.use(passport.session());
 require("./routes/passportConfig")(passport)
@@ -88,9 +88,12 @@ app.post('/login', (req, res, next) => {
 
     passport.authenticate('local-login', (err, user, info) => {
         if (err) throw err
-
         if(!user){
-            res.send("No such employee exists")
+            if(!info){
+                res.send("No such employee exists")
+            }else{
+                res.send(info)
+            }
         }else{
             req.logIn(user, err => {
                 if (err) throw err
@@ -122,38 +125,18 @@ app.post('/login', (req, res, next) => {
     //             res.send({ message: "User doesn't exist" });
     //         }
     // })
-
-    // db.query(
-    //     "SELECT * FROM employee WHERE employeeEmail = ? AND employeePassword = ?;",
-    //     [email, password],
-    //     (err, result) => {
-    //         if (err) {
-    //             res.send({ err: err });
-    //         }
-
-    //         if (result.length > 0) {
-    //             // user = result
-    //             req.session.user = result
-    //             console.log(req.session.user)
-    //             res.send(result)
-    //         } else {
-    //             res.send({ message: "Wrong username/password" });
-    //         }
-
-    //     }
-    // )
 })
 
 app.get('/user', (req, res) => {
     res.send(req.user)
-    // if (req.session.user != undefined) {
-    //     // req.session.user = user
-    //     console.log("Logged in")
-    //     res.send({ loggedIn: true, user: req.session.user })
-    // } else {
-    //     console.log("Not Logged in")
-    //     res.send({ loggedIn: false })
-    // }
+})
+
+// app.get('/logout', logOut())
+
+app.get('/logout', (req, res) => {
+    req.logout()
+    req.session.destroy()
+    console.log(res)
 })
 
 //Start Server
