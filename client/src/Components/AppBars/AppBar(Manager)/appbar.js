@@ -7,7 +7,7 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import Axios from 'axios';
-import { useHistory } from 'react-router-dom';
+import { useHistory, Redirect } from 'react-router-dom';
 
 // Custom imports
 import Inventory from '../../Inventory/content';
@@ -112,10 +112,9 @@ export default function AppBarManager({ user }) {
             url: "http://localhost:3001/logout",
           })
           .then(res => {
-              history.push('/');
-          })
-          .catch((err) => {
-              console.log(err);
+              if(res){
+                window.location.reload(false);
+              }
           })
     };
 
@@ -160,6 +159,7 @@ export default function AppBarManager({ user }) {
                     <Tabs value={value} onChange={handleChangeTab} aria-label="tabs">
                         <Tab label="Inventory" />
                         <Tab label="Orders" />
+                        <Tab label="Sales" />
                         <Tab label="Employees" />
                     </Tabs>
                     <div className={classes.grow} />
@@ -202,6 +202,9 @@ export default function AppBarManager({ user }) {
                 </TabPanel>
                 <TabPanel value={value} index={2}>
                     Item Three
+                </TabPanel>
+                <TabPanel value={value} index={3}>
+                    Item Four
                 </TabPanel>
             </SwipeableViews>
         </div >

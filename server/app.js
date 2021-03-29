@@ -135,8 +135,7 @@ app.get('/user', (req, res) => {
 
 app.get('/logout', (req, res) => {
     req.logout()
-    req.session.destroy()
-    console.log(res)
+    res.send("success")
 })
 
 //Start Server

@@ -27,6 +27,8 @@ CREATE TABLE products(
 	productID int(10) NOT NULL,
 	productName varchar(15) NOT NULL,
 	productQuantity int(10) NOT NULL,
+	price float(50) NOT NULL,
+	stats enum('available', 'not available', 'out of stock') NOT NULL,
 	
 	PRIMARY KEY(productID)
 );
@@ -37,8 +39,8 @@ CREATE TABLE orders(
 	productID int(10) NOT NULL,
 	orderDate DATE NOT NULL,
 	orderQuantity int(10) NOT NULL,
-	price float(50) NOT NULL,
-	stats varchar(10) NOT NULL,
+	total float(50) NOT NULL,
+	stats enum('paid', 'not yet paid') NOT NULL,
 
 	PRIMARY KEY(orderID),
 	FOREIGN KEY(productID) REFERENCES products(productID),
