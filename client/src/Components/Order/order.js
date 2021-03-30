@@ -1,6 +1,6 @@
 import React from 'react';
 import Card from './card';
-import './order.css';
+import '../../materials/css/order.css';
 import Logo from '../Logo(temp)/logo';
 import { Box, Grid } from '@material-ui/core';
 

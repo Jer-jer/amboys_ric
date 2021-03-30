@@ -11,7 +11,8 @@ import { useHistory, Redirect } from 'react-router-dom';
 
 // Custom imports
 import Inventory from '../../Inventory/content';
-import Home from '../../Home/home'
+import Sales from '../../Sales/content';
+import Orders from '../../Orders/order';
 
 function TabPanel(props) {
     const { children, value, index } = props;
@@ -103,6 +104,7 @@ export default function AppBarManager({ user }) {
 
     const handleChangeTab = (event, newValue) => {
         setValue(newValue);
+        console.log(value);
     };
 
     const logOut = () => {
@@ -198,10 +200,10 @@ export default function AppBarManager({ user }) {
                     <Inventory />
                 </TabPanel>
                 <TabPanel value={value} index={1}>
-                    Item Two
+                    <Orders />
                 </TabPanel>
                 <TabPanel value={value} index={2}>
-                    Item Three
+                    <Sales />
                 </TabPanel>
                 <TabPanel value={value} index={3}>
                     Item Four

@@ -49,7 +49,6 @@ export default function FormContent() {
                 <Grid item xs={6}>
                     <FormControl fullWidth>
                         <TextField
-                            autoFocus
                             id="prodName"
                             label="Product Name"
                             type="text"
@@ -60,7 +59,6 @@ export default function FormContent() {
                 <Grid item xs={6}>
                     <FormControl fullWidth>
                         <TextField
-                            autoFocus
                             id="prodQuantity"
                             label="Product Quantity"
                             type="text"
@@ -70,17 +68,18 @@ export default function FormContent() {
                 </Grid>
                 <Grid item xs={6}>
                     <FormControl fullWidth>
-                        <InputLabel htmlFor="standard-adornment-amount">Amount</InputLabel>
+                        <InputLabel htmlFor="price">Amount</InputLabel>
                         <Input
-                            id="standard-adornment-amount"
+                            id="price"
                             onChange={handleAmount}
                             startAdornment={<InputAdornment position="start">Php</InputAdornment>}
+                            required
                         />
                     </FormControl>
                 </Grid>
                 <Grid item xs={6}>
                     <FormControl disabled fullWidth>
-                        <InputLabel htmlFor="component-disabled">Name</InputLabel>
+                        <InputLabel htmlFor="component-disabled">Status</InputLabel>
                         <Input id="status" value="Available" disabled />
                     </FormControl>
                 </Grid>

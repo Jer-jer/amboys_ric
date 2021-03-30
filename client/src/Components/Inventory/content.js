@@ -51,6 +51,10 @@ EnhancedTableHead.propTypes = {
     rowCount: PropTypes.number.isRequired,
 };
 
+//Modal Transition
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
 
 //For Toolbar
 const useToolbarStyles = makeStyles((theme) => ({
@@ -87,19 +91,15 @@ const EnhancedTableToolbar = (props) => {
     };
 
     //For Adding Data in DB
-    const Transition = React.forwardRef(function Transition(props, ref) {
-        return <Slide direction="up" ref={ref} {...props} />;
-    });
-
     const Modal = () => {
         return (
             <form>
                 <Dialog 
-                    open={open} 
-                    TransitionComponent={Transition} 
-                    keepMounted 
-                    onClose={handleClose} 
-                    aria-labelledby="form-dialog-title"
+                    open={open}
+                    TransitionComponent={Transition}
+                    keepMounted
+                    onClose={handleClose}
+                    aria-labelledby="alert-dialog-slide-title"
                 >
                     <DialogTitle id="form-dialog-title">Add Product</DialogTitle>
                     <DialogContent>
