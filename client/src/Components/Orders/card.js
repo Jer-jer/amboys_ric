@@ -70,18 +70,23 @@ export default function RecipeReviewCard() {
         setOpen(false);
     };
 
-    const handleChangeStatus = () => {
-        if(value > 2) {
-            setValue(value%3);
-        }else if(value == 0){
-            console.log(value);
-            setValue(value+1);
-        }else{
-            setValue(value+1);
-            console.log(value);
+    const handleChangeStatus = (e) => {
+        setValue(value + 1);
+        if(value == 0){
+            
+        }else if(value == 1){
+
+        }else if(value == 2){ 
+            setValue((value+1)%3);
         }
         
-        
+        console.log(value);
+    };
+
+    const changeColor = () => {
+        if(value == 0){
+            return("black");
+        }
     };
 
     return (

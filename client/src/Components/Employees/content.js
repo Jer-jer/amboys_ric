@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableContainer, TablePagination } from '@m
 import { TableRow, Toolbar, Typography, Paper, Checkbox, IconButton, Tooltip } from '@material-ui/core'
 
 //For Add Data (Modal)
-import { Button, TextField, Dialog, DialogActions } from '@material-ui/core';
+import { Button, Dialog, DialogActions } from '@material-ui/core';
 import { DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
 import Slide from '@material-ui/core/Slide';
 
@@ -26,19 +26,19 @@ import AddForm from './form/form_content';
 
 //Retrieve Data from DB
 const rows = [
-    createData(305, 'Cupcake', 3.7, 20.00, "available"),
-    createData(452, 'Donut', 25.0, 20.00, "available"),
-    createData(262, 'Eclair', 16.0, 20.00, "not available"),
-    createData(159, 'Frozen yoghurt', 6.0, 20.00, "available"),
-    createData(356, 'Gingerbread', 16.0, 20.00, "not available"),
-    createData(408, 'Honeycomb', 3.2, 10, 20.00, "not available"),
-    createData(237, 'Ice cream sandwich', 9.0, 20.00, "out of stock"),
-    createData(375, 'Jelly Bean', 0.0, 20.00, "available"),
-    createData(518, 'KitKat', 26.0, 20.00, "out of stock"),
-    createData(392, 'Lollipop', 0.2, 20.00, "out of stock"),
-    createData(318, 'Marshmallow', 0, 20.00, "not available"),
-    createData(360, 'Nougat', 19.0, 20.00, "not available"),
-    createData(437, 'Oreo', 18.0, 20.00, "available"),
+    createData(305, 'Sakata Gintoki', 'zdkr.ah@modabet47.com', '123456', "09458034816", "Manager"),
+    createData(452, 'Sukehiro Yami', 'nabil.nounits@smrn420.com', '123456', "09458034816", "Manager"),
+    createData(262, 'Uzumaki Naruto', 'kmos@region13.cf', '123456', "09458034816", "Manager"),
+    createData(159, 'Uchiha Sasuke', 'kmos@region13.cf', '123456', "09458034816", "Manager"),
+    createData(356, 'Shimura Shinpachi', 'qjoseluis@ladieswhobrunch.net', '123456', "09458034816", "Manager"),
+    createData(408, 'Kotaro Katsuro', 'vahmed@bbtspage.com', '123456', "n09458034816", "Manager"),
+    createData(237, 'Jonathan Joestar', 'vtechnol@king.buzz', '123456', "09458034816", "Manager"),
+    createData(375, 'Jotaro Kujo', 'dahmedcena14n@changenypd.com', '123456', "09458034816", "Manager"),
+    createData(518, 'Giorno Giovanna', '3veer.zaara.12@king.buzz', '123456', "09458034816", "Manager"),
+    createData(392, 'Joseph Joestar', 'hdina.samer@mwoodman.com', '123456', "09458034816", "Manager"),
+    createData(318, 'Takasugi Shinsuke', 'qboz@domy.me', '123456', "09458034816", "Manager"),
+    createData(360, 'Barry Allen', 'crannahab@apilasansor.com', '123456', "09458034816", "Manager"),
+    createData(437, 'Wally West', 'mgmahmoud53@greendike.com', '123456', "09458034816", "Manager"),
 ];
 
 EnhancedTableHead.propTypes = {
@@ -133,7 +133,7 @@ const EnhancedTableToolbar = (props) => {
                 </Typography>
             ) : (
                 <Typography className={classes.title} variant="h6" id="tableTitle" component="div">
-                    Products
+                    Employees
                 </Typography>
             )}
 
@@ -296,9 +296,10 @@ export default function Content() {
                                                 {row.id}
                                             </TableCell>
                                             <TableCell>{row.name}</TableCell>
-                                            <TableCell align="right">{row.price}</TableCell>
-                                            <TableCell align="right">{row.quantity}</TableCell>
-                                            <TableCell align="center">{availability(row.status)}</TableCell>
+                                            <TableCell>{row.email}</TableCell>
+                                            <TableCell>{row.password}</TableCell>
+                                            <TableCell>{row.number}</TableCell>
+                                            <TableCell>{row.job}</TableCell>
                                         </TableRow>
                                     );
                                 })}

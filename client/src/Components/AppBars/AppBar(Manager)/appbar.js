@@ -1,18 +1,15 @@
 import React from 'react';
 import SwipeableViews from 'react-swipeable-views';
 import { fade, makeStyles, useTheme } from '@material-ui/core/styles';
-import { AppBar, Toolbar, IconButton, Typography, InputBase, Badge, Menu, MenuItem, Box, Tab, Tabs } from '@material-ui/core';
-import SearchIcon from '@material-ui/icons/Search';
+import { AppBar, Toolbar, IconButton, Typography, Badge, Menu, MenuItem, Box, Tab, Tabs } from '@material-ui/core';
 import AccountCircle from '@material-ui/icons/AccountCircle';
-import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import Axios from 'axios';
-import { useHistory, Redirect } from 'react-router-dom';
 
 // Custom imports
 import Inventory from '../../Inventory/content';
-import Sales from '../../Sales/content';
 import Orders from '../../Orders/order';
+import Employees from '../../Employees/employees';
 
 function TabPanel(props) {
     const { children, value, index } = props;
@@ -90,7 +87,6 @@ export default function AppBarManager({ user }) {
     const theme = useTheme();
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [value, setValue] = React.useState(0);
-    let history = useHistory();
 
     const isMenuOpen = Boolean(anchorEl);
 
@@ -112,12 +108,12 @@ export default function AppBarManager({ user }) {
             method: 'GET',
             withCredentials: true,
             url: "http://localhost:3001/logout",
-          })
-          .then(res => {
-              if(res){
-                window.location.reload(false);
-              }
-          })
+        })
+            .then(res => {
+                if (res) {
+                    window.location.reload(false);
+                }
+            })
     };
 
     const menuId = 'primary-search-account-menu';
@@ -131,7 +127,6 @@ export default function AppBarManager({ user }) {
             open={isMenuOpen}
             onClose={handleMenuClose}
         >
-            <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
             <MenuItem onClick={handleMenuClose}>My account</MenuItem>
             <MenuItem onClick={logOut}>Logout</MenuItem>
         </Menu>
@@ -141,36 +136,20 @@ export default function AppBarManager({ user }) {
         <div className={classes.grow}>
             <AppBar position="fixed">
                 <Toolbar>
+                    <IconButton color="inherit" aria-label="logo">
+                        <img src="/img/logo/tago.png" height="35" weight="35"></img>
+                    </IconButton>
                     <Typography className={classes.title} variant="h6" noWrap>
                         Amboy's Food Stall
                     </Typography>
-                    <div className={classes.search}>
-                        <div className={classes.searchIcon}>
-                            <SearchIcon />
-                        </div>
-                        <InputBase
-                            placeholder="Search…"
-                            classes={{
-                                root: classes.inputRoot,
-                                input: classes.inputInput,
-                            }}
-                            inputProps={{ 'aria-label': 'search' }}
-                        />
-                    </div>
                     <div className={classes.grow} />
                     <Tabs value={value} onChange={handleChangeTab} aria-label="tabs">
                         <Tab label="Inventory" />
                         <Tab label="Orders" />
-                        <Tab label="Sales" />
                         <Tab label="Employees" />
                     </Tabs>
                     <div className={classes.grow} />
                     <div className={classes.sectionDesktop}>
-                        <IconButton aria-label="show 4 new mails" color="inherit">
-                            <Badge badgeContent={4} color="secondary">
-                                <MailIcon />
-                            </Badge>
-                        </IconButton>
                         <IconButton aria-label="show 17 new notifications" color="inherit">
                             <Badge badgeContent={17} color="secondary">
                                 <NotificationsIcon />
@@ -203,10 +182,7 @@ export default function AppBarManager({ user }) {
                     <Orders />
                 </TabPanel>
                 <TabPanel value={value} index={2}>
-                    <Sales />
-                </TabPanel>
-                <TabPanel value={value} index={3}>
-                    Item Four
+                    <Employees />
                 </TabPanel>
             </SwipeableViews>
         </div >
