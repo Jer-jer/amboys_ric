@@ -51,11 +51,6 @@ EnhancedTableHead.propTypes = {
     rowCount: PropTypes.number.isRequired,
 };
 
-//Modal Transition
-const Transition = React.forwardRef(function Transition(props, ref) {
-    return <Slide direction="up" ref={ref} {...props} />;
-});
-
 //For Toolbar
 const useToolbarStyles = makeStyles((theme) => ({
     root: {
@@ -76,6 +71,11 @@ const useToolbarStyles = makeStyles((theme) => ({
         flex: '1 1 100%',
     },
 }));
+
+//Modal Transition
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const EnhancedTableToolbar = (props) => {
     const classes = useToolbarStyles();

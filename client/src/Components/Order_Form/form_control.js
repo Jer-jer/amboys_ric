@@ -1,14 +1,17 @@
 import React from 'react';
+import { makeStyles, withStyles, styled } from '@material-ui/core/styles';
 import { FormControl, InputLabel, Input } from '@material-ui/core';
 
-function FormCont({ type, label, specs }) {
+const WidthFullControl = styled(FormControl)({
+    fullWidth: true
+});
+
+function FormCont({ type, label }) {
     return (
-        <div>
-            <FormControl className={specs}>
-                <InputLabel htmlFor="my-input">{label}</InputLabel>
-                <Input type={type} id="my-input" aria-describedby="my-helper-text" />
-            </FormControl>
-        </div>
+        <WidthFullControl>
+            <InputLabel htmlFor="my-input">{label}</InputLabel>
+            <Input type={type} id="my-input" aria-describedby="my-helper-text" />
+        </WidthFullControl>
     );
 }
 

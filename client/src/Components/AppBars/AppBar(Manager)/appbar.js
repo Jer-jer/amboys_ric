@@ -10,6 +10,8 @@ import Axios from 'axios';
 import Inventory from '../../Inventory/content';
 import Orders from '../../Orders/order';
 import Employees from '../../Employees/employees';
+import Notif from './notifications';
+import AccountMenu from './accountmenu';
 
 function TabPanel(props) {
     const { children, value, index } = props;
@@ -37,43 +39,6 @@ const useStyles = makeStyles((theme) => ({
             display: 'block',
         },
     },
-    search: {
-        position: 'relative',
-        borderRadius: theme.shape.borderRadius,
-        backgroundColor: fade(theme.palette.common.white, 0.15),
-        '&:hover': {
-            backgroundColor: fade(theme.palette.common.white, 0.25),
-        },
-        marginRight: theme.spacing(2),
-        marginLeft: 0,
-        width: '100%',
-        [theme.breakpoints.up('sm')]: {
-            marginLeft: theme.spacing(3),
-            width: 'auto',
-        },
-    },
-    searchIcon: {
-        padding: theme.spacing(0, 2),
-        height: '100%',
-        position: 'absolute',
-        pointerEvents: 'none',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    inputRoot: {
-        color: 'inherit',
-    },
-    inputInput: {
-        padding: theme.spacing(1, 1, 1, 0),
-        // vertical padding + font size from searchIcon
-        paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
-        transition: theme.transitions.create('width'),
-        width: '100%',
-        [theme.breakpoints.up('md')]: {
-            width: '20ch',
-        },
-    },
     sectionDesktop: {
         display: 'none',
         [theme.breakpoints.up('md')]: {
@@ -87,6 +52,17 @@ export default function AppBarManager({ user }) {
     const theme = useTheme();
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [value, setValue] = React.useState(0);
+    const [notifAnchor, setNotifAnchor] = React.useState(null);
+
+    const isNotifOpen = Boolean(notifAnchor);
+
+    const handleClickNotif = (event) => {
+        setNotifAnchor(event.currentTarget);
+    };
+
+    const handleCloseNotif = () => {
+        setNotifAnchor(null);
+    };
 
     const isMenuOpen = Boolean(anchorEl);
 
@@ -116,22 +92,6 @@ export default function AppBarManager({ user }) {
             })
     };
 
-    const menuId = 'primary-search-account-menu';
-    const renderMenu = (
-        <Menu
-            anchorEl={anchorEl}
-            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-            id={menuId}
-            keepMounted
-            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-            open={isMenuOpen}
-            onClose={handleMenuClose}
-        >
-            <MenuItem onClick={handleMenuClose}>My account</MenuItem>
-            <MenuItem onClick={logOut}>Logout</MenuItem>
-        </Menu>
-    );
-
     return (
         <div className={classes.grow}>
             <AppBar position="fixed">
@@ -150,15 +110,14 @@ export default function AppBarManager({ user }) {
                     </Tabs>
                     <div className={classes.grow} />
                     <div className={classes.sectionDesktop}>
-                        <IconButton aria-label="show 17 new notifications" color="inherit">
-                            <Badge badgeContent={17} color="secondary">
+                        <IconButton aria-label="show 17 new notifications" color="inherit" onClick={handleClickNotif}>
+                            <Badge color="secondary">
                                 <NotificationsIcon />
                             </Badge>
                         </IconButton>
                         <IconButton
                             edge="end"
                             aria-label="account of current user"
-                            aria-controls={menuId}
                             aria-haspopup="true"
                             onClick={handleProfileMenuOpen}
                             color="inherit"
@@ -169,7 +128,17 @@ export default function AppBarManager({ user }) {
                 </Toolbar>
             </AppBar>
             <Toolbar />
-            {renderMenu}
+            <Notif 
+                notifAnchor={notifAnchor} 
+                handleClose={handleCloseNotif} 
+                isNotifOpen={isNotifOpen} 
+            />
+            <AccountMenu 
+                anchorEl={anchorEl} 
+                isMenuOpen={isMenuOpen} 
+                handleMenuClose={handleMenuClose} 
+                logOut={logOut} 
+            />
             <SwipeableViews
                 axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
                 index={value}

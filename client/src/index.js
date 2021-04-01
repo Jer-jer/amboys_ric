@@ -30,7 +30,6 @@ ReactDOM.render(
       {/* Employee POV Links */}
       <Switch>
         {/* Set the links/paths here */}
-        <Route path="/inventory" exact component={Inventory} />
       </Switch>
     </Router>
   </React.StrictMode>,
