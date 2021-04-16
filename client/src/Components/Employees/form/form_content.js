@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createMuiTheme, makeStyles } from '@material-ui/core/styles';
-import { TextField, FormControl, Grid } from '@material-ui/core';
+import { TextField, FormControl, Grid, Select, MenuItem } from '@material-ui/core';
 import { InputLabel, Input, InputAdornment } from '@material-ui/core';
 
 const theme = createMuiTheme({
@@ -26,6 +26,11 @@ const useStyles = makeStyles((theme) => ({
 export default function FormContent() {
     const classes = useStyles();
     const [values, setValues] = useState(0);
+    const [emp, setEmp] = React.useState('waiter');
+
+    const handleChange = (e) => {
+        setEmp(e.target.value);
+    };
 
     const handleAmount = (e) => {
         setValues(e.target.value);
@@ -68,19 +73,45 @@ export default function FormContent() {
                 </Grid>
                 <Grid item xs={6}>
                     <FormControl fullWidth>
-                        <InputLabel htmlFor="price">Amount</InputLabel>
-                        <Input
-                            id="price"
-                            onChange={handleAmount}
-                            startAdornment={<InputAdornment position="start">Php</InputAdornment>}
+                        <TextField
+                            id="empEmail"
+                            label="Email Address"
+                            type="text"
                             required
                         />
                     </FormControl>
                 </Grid>
                 <Grid item xs={6}>
                     <FormControl disabled fullWidth>
-                        <InputLabel htmlFor="component-disabled">Status</InputLabel>
-                        <Input id="status" value="Available" disabled />
+                        <TextField
+                            id="empPassword"
+                            label="Password"
+                            type="password"
+                            required
+                        />
+                    </FormControl>
+                </Grid>
+                <Grid item xs={6}>
+                    <FormControl fullWidth>
+                        <TextField
+                            id="empContact"
+                            label="Contact Number"
+                            type="text"
+                            required
+                        />
+                    </FormControl>
+                </Grid>
+                <Grid item xs={6}>
+                    <FormControl>
+                        <InputLabel>Age</InputLabel>
+                        <Select
+                            id="demo-simple-select"
+                            value={emp}
+                            onChange={handleChange}
+                        >
+                            <MenuItem value="waiter">Waiter</MenuItem>
+                            <MenuItem value="cashier">Cashier</MenuItem>
+                        </Select>
                     </FormControl>
                 </Grid>
             </Grid>

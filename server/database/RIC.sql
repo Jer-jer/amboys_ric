@@ -59,6 +59,8 @@ CREATE TABLE payment(
 	FOREIGN KEY(customerID) REFERENCES customers(customerID)
 );
 
+INSERT INTO employee VALUES (2897564, "BARGAMENTO", "ALLAN JERICHO", "jerichoallan0@gmail.com", "123456", "09458034816", "manager");
+
 
 
 

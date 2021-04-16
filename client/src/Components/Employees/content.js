@@ -101,12 +101,9 @@ const EnhancedTableToolbar = (props) => {
                     onClose={handleClose}
                     aria-labelledby="alert-dialog-slide-title"
                 >
-                    <DialogTitle id="form-dialog-title">Add Product</DialogTitle>
+                    <DialogTitle id="form-dialog-title">Register Employee</DialogTitle>
                     <DialogContent>
-                        <DialogContentText>
-                            Please add the product truthfully and honestly
-                        </DialogContentText>
-                            <AddForm />
+                        <AddForm />
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleClose} color="primary">
