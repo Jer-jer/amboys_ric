@@ -39,7 +39,7 @@ app.use(session({
 }))
 app.use(passport.initialize());
 app.use(passport.session());
-require("./routes/passportConfig")(passport)
+require("./config/passportConfig")(passport)
 
 const db = mysql.createConnection({
     host: "localhost",
@@ -54,14 +54,12 @@ const db = mysql.createConnection({
 //Routes
 app.post('/register', (req, res) => {
     const empID = req.body.empID;
-    const empLname = req.body.empLname;
-    const empFname = req.body.empFname;
+    const empLname = req.body.empLname.toUpperCase();
+    const empFname = req.body.empFname.toUpperCase();
     const empEmail = req.body.empEmail;
     const empPass = req.body.empPass;
     const contact = req.body.contact;
-    const job = req.body.job;
-
-    toLowerCase(job);
+    const job = req.body.job.toLowerCase();
 
     // with encryption
     // bcrypt.hash(empPass, saltRounds, (err, hash) => {
@@ -75,10 +73,11 @@ app.post('/register', (req, res) => {
 
     // })
 
-    db.query("INSERT INTO employee (employeeID, employeeLname, employeeFname, employeeEmail, employeePassword, contactNo, jobTitle) VALUES (?,?,?,?,?)",
+    db.query("INSERT INTO employee (employeeID, employeeLname, employeeFname, employeeEmail, employeePassword, contactNo, jobTitle) VALUES (?,?,?,?,?,?,?)",
         [empID, empLname, empFname, empEmail, empPass, contact, job],
         (err, result) => {
             if (err) throw err
+            res.send(result)
         })
 })
 
@@ -125,6 +124,15 @@ app.post('/login', (req, res, next) => {
     //             res.send({ message: "User doesn't exist" });
     //         }
     // })
+})
+
+app.get('/users', (req, res) => {
+    db.query("SELECT * FROM employee;",
+        (err, result) => {
+            if (err) throw err
+            res.send(result)
+            console.log(result)
+    })
 })
 
 app.get('/user', (req, res) => {

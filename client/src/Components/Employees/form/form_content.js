@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { createMuiTheme, makeStyles } from '@material-ui/core/styles';
-import { TextField, FormControl, Grid, Select, MenuItem } from '@material-ui/core';
+import { TextField, FormControl, Grid, Select, MenuItem, IconButton } from '@material-ui/core';
 import { InputLabel, Input, InputAdornment } from '@material-ui/core';
+import { Visibility, VisibilityOff } from '@material-ui/icons';
 
 const theme = createMuiTheme({
     overrides: {
@@ -23,18 +24,17 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function FormContent() {
+export default function FormContent({ employee, handleChange }) {
     const classes = useStyles();
-    const [values, setValues] = useState(0);
-    const [emp, setEmp] = React.useState('waiter');
+    const [showPass, setShowPass] = useState(false); 
 
-    const handleChange = (e) => {
-        setEmp(e.target.value);
+    const handleClickShowPassword = () => {
+        setShowPass(!showPass);
     };
 
-    const handleAmount = (e) => {
-        setValues(e.target.value);
-    }
+    const handleMouseDownPassword = (event) => {
+        event.preventDefault();
+    };
 
     return (
         <div className={classes.root}>
@@ -47,6 +47,8 @@ export default function FormContent() {
                             label="Employee ID"
                             type="text"
                             helperText="How to create an ID is taught by the manager"
+                            value={employee.id}
+                            onChange={handleChange('id')}
                             required
                         />
                     </FormControl>
@@ -57,6 +59,7 @@ export default function FormContent() {
                             id="emplName"
                             label="Last Name"
                             type="text"
+                            onChange={handleChange('lastName')}
                             required
                         />
                     </FormControl>
@@ -67,6 +70,7 @@ export default function FormContent() {
                             id="empfName"
                             label="First Name"
                             type="text"
+                            onChange={handleChange('firstName')}
                             required
                         />
                     </FormControl>
@@ -77,17 +81,29 @@ export default function FormContent() {
                             id="empEmail"
                             label="Email Address"
                             type="text"
+                            onChange={handleChange('email')}
                             required
                         />
                     </FormControl>
                 </Grid>
                 <Grid item xs={6}>
-                    <FormControl disabled fullWidth>
-                        <TextField
-                            id="empPassword"
-                            label="Password"
-                            type="password"
-                            required
+                    <FormControl fullWidth>
+                        <InputLabel htmlFor="standard-adornment-password">Password</InputLabel>
+                        <Input
+                            id="standard-adornment-password"
+                            type={showPass ? 'text' : 'password'}
+                            onChange={handleChange('password')}
+                            endAdornment={
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        aria-label="toggle password visibility"
+                                        onClick={handleClickShowPassword}
+                                        onMouseDown={handleMouseDownPassword}
+                                    >
+                                        {showPass ? <Visibility /> : <VisibilityOff />}
+                                    </IconButton>
+                                </InputAdornment>
+                            }
                         />
                     </FormControl>
                 </Grid>
@@ -97,17 +113,18 @@ export default function FormContent() {
                             id="empContact"
                             label="Contact Number"
                             type="text"
+                            onChange={handleChange('contact')}
                             required
                         />
                     </FormControl>
                 </Grid>
                 <Grid item xs={6}>
                     <FormControl>
-                        <InputLabel>Age</InputLabel>
+                        <InputLabel>Position</InputLabel>
                         <Select
                             id="demo-simple-select"
-                            value={emp}
-                            onChange={handleChange}
+                            value={employee.position}
+                            onChange={handleChange('position')}
                         >
                             <MenuItem value="waiter">Waiter</MenuItem>
                             <MenuItem value="cashier">Cashier</MenuItem>

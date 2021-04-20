@@ -24,26 +24,6 @@ export default function Form() {
         setPassword(e.target.value);
     };
 
-    //This is for register soon
-    // const reg = () => {
-    //     Axios({
-    //         method: 'POST',
-    //         data: {
-    //             empID: empID,
-    //             empLname: empLname,
-    //             empFname: empFname,
-    //             empEmail: empEmail,
-    //             empPass: empPass,
-    //             contact: contact,
-    //             job: job
-    //         },
-    //         withCredentials: true,
-    //         url: "http://localhost:3001/register",
-    //     })
-    //     .then(res => {
-    //         console.log(res);
-    //     })
-    // };
     const login = () => { 
         Axios({
             method: 'POST',

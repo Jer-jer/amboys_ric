@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import { lighten, makeStyles } from '@material-ui/core/styles';
+import { lighten, makeStyles, withStyles } from '@material-ui/core/styles';
+import Axios from 'axios';
 
 //For Table
 import { Table, TableBody, TableCell, TableContainer, TablePagination } from '@material-ui/core'
@@ -11,6 +12,12 @@ import { TableRow, Toolbar, Typography, Paper, Checkbox, IconButton, Tooltip } f
 import { Button, Dialog, DialogActions } from '@material-ui/core';
 import { DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
 import Slide from '@material-ui/core/Slide';
+
+//For Registered (Modal)
+import MuiDialogTitle from '@material-ui/core/DialogTitle';
+import MuiDialogContent from '@material-ui/core/DialogContent';
+import MuiDialogActions from '@material-ui/core/DialogActions';
+import CloseIcon from '@material-ui/icons/Close';
 
 //Icons
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -23,8 +30,54 @@ import stableSort from './stable_sort';
 import getComparator from './comparator';
 import AddForm from './form/form_content';
 
+const styles = (theme) => ({
+    root: {
+        margin: 0,
+        padding: theme.spacing(2),
+    },
+    closeButton: {
+        position: 'absolute',
+        right: theme.spacing(1),
+        top: theme.spacing(1),
+        color: theme.palette.grey[500],
+    },
+});
 
-//Retrieve Data from DB
+const useStyles = makeStyles((theme) => ({
+    root: {
+        width: '100%',
+    },
+    paper: {
+        width: '100%',
+        marginBottom: theme.spacing(2),
+    },
+    table: {
+        minWidth: 750,
+    },
+    visuallyHidden: {
+        border: 0,
+        clip: 'rect(0 0 0 0)',
+        height: 1,
+        margin: -1,
+        overflow: 'hidden',
+        padding: 0,
+        position: 'absolute',
+        top: 20,
+        width: 1,
+    },
+}));
+
+Axios({
+    method: "GET",
+    withCredentials: true,
+    url: "http://localhost:3001/users",
+    }).then((res) => {
+        console.log(res);
+        // const rows = createData(res.employeeID, res.employeeLname + " " + res.employeeFname, 
+        // res.employeeEmail, res.employeePassword, res.contactNo, res.jobTitle);
+    });
+
+// Retrieve Data from DB
 const rows = [
     createData(305, 'Sakata Gintoki', 'zdkr.ah@modabet47.com', '123456', "09458034816", "Manager"),
     createData(452, 'Sukehiro Yami', 'nabil.nounits@smrn420.com', '123456', "09458034816", "Manager"),
@@ -92,9 +145,45 @@ const EnhancedTableToolbar = (props) => {
 
     //For Adding Data in DB
     const Modal = () => {
+        const [employee, setEmployee] = React.useState({
+            id: '',
+            lastName: '',
+            firstName: '',
+            email: '',
+            password: '',
+            contact: '',
+            position: 'waiter',
+        });
+
+        const handleChange = (props) => (event) => {
+            setEmployee({ ...employee, [props]: event.target.value });
+        };
+
+        // Register
+        const register = () => {
+            Axios({
+                method: 'POST',
+                data: {
+                    empID: employee.id,
+                    empLname: employee.lastName,
+                    empFname: employee.firstName,
+                    empEmail: employee.email,
+                    empPass: employee.password,
+                    contact: employee.contact,
+                    job: employee.position
+                },
+                withCredentials: true,
+                url: "http://localhost:3001/register",
+            })
+                .then(res => {
+                    handleClose();
+                    alert("Employee Registered.");
+                })
+        };
+
         return (
             <form>
-                <Dialog 
+                <Dialog
                     open={open}
                     TransitionComponent={Transition}
                     keepMounted
@@ -103,13 +192,13 @@ const EnhancedTableToolbar = (props) => {
                 >
                     <DialogTitle id="form-dialog-title">Register Employee</DialogTitle>
                     <DialogContent>
-                        <AddForm />
+                        <AddForm employee={employee} handleChange={handleChange} />
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleClose} color="primary">
                             Cancel
                         </Button>
-                        <Button onClick={handleClose} color="primary">
+                        <Button onClick={register} color="primary">
                             Add
                         </Button>
                     </DialogActions>
@@ -156,29 +245,68 @@ EnhancedTableToolbar.propTypes = {
     numSelected: PropTypes.number.isRequired,
 };
 
-const useStyles = makeStyles((theme) => ({
+const DialogRegTitle = withStyles(styles)((props) => {
+    const { children, classes, onClose, ...other } = props;
+    return (
+        <MuiDialogTitle disableTypography className={classes.root} {...other}>
+            <Typography variant="h6">{children}</Typography>
+            {onClose ? (
+                <IconButton aria-label="close" className={classes.closeButton} onClick={onClose}>
+                    <CloseIcon />
+                </IconButton>
+            ) : null}
+        </MuiDialogTitle>
+    );
+});
+
+const DialogRegContent = withStyles((theme) => ({
     root: {
-        width: '100%',
+        padding: theme.spacing(2),
     },
-    paper: {
-        width: '100%',
-        marginBottom: theme.spacing(2),
+}))(MuiDialogContent);
+
+const DialogRegActions = withStyles((theme) => ({
+    root: {
+        margin: 0,
+        padding: theme.spacing(1),
     },
-    table: {
-        minWidth: 750,
-    },
-    visuallyHidden: {
-        border: 0,
-        clip: 'rect(0 0 0 0)',
-        height: 1,
-        margin: -1,
-        overflow: 'hidden',
-        padding: 0,
-        position: 'absolute',
-        top: 20,
-        width: 1,
-    },
-}));
+}))(MuiDialogActions);
+
+const RegisteredModal = () => {
+    const [show, setShow] = React.useState(true);
+
+    const handleClickOpenReg = () => {
+        setShow(true);
+    };
+    const handleCloseReg = () => {
+        setShow(false);
+    };
+
+    return (
+        <div>
+            <Dialog onClose={handleCloseReg} aria-labelledby="customized-dialog-title" open={show}>
+                <DialogRegTitle id="customized-dialog-title" onClose={handleCloseReg}>
+                    Modal title
+                </DialogRegTitle>
+                <DialogRegContent dividers>
+                    <Typography gutterBottom>
+                        Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac facilisis
+                        in, egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+                    </Typography>
+                    <Typography gutterBottom>
+                        Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Vivamus sagittis
+                        lacus vel augue laoreet rutrum faucibus dolor auctor.
+                    </Typography>
+                    <Typography gutterBottom>
+                        Aenean lacinia bibendum nulla sed consectetur. Praesent commodo cursus magna, vel
+                        scelerisque nisl consectetur et. Donec sed odio dui. Donec ullamcorper nulla non metus
+                        auctor fringilla.
+                    </Typography>
+                </DialogRegContent>
+            </Dialog>
+        </div>
+    );
+};
 
 export default function Content() {
     const classes = useStyles();
