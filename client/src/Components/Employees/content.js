@@ -67,18 +67,8 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-Axios({
-    method: "GET",
-    withCredentials: true,
-    url: "http://localhost:3001/users",
-    }).then((res) => {
-        console.log(res);
-        // const rows = createData(res.employeeID, res.employeeLname + " " + res.employeeFname, 
-        // res.employeeEmail, res.employeePassword, res.contactNo, res.jobTitle);
-    });
-
-// Retrieve Data from DB
-const rows = [
+// Original sample Table data
+const sample = [
     createData(305, 'Sakata Gintoki', 'zdkr.ah@modabet47.com', '123456', "09458034816", "Manager"),
     createData(452, 'Sukehiro Yami', 'nabil.nounits@smrn420.com', '123456', "09458034816", "Manager"),
     createData(262, 'Uzumaki Naruto', 'kmos@region13.cf', '123456', "09458034816", "Manager"),
@@ -132,8 +122,9 @@ const useToolbarStyles = makeStyles((theme) => ({
 
 const EnhancedTableToolbar = (props) => {
     const classes = useToolbarStyles();
-    const { numSelected } = props;
+    const { numSelected, data } = props;
     const [open, setOpen] = React.useState(false);
+    const [show, setShow] = React.useState(false);
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -142,6 +133,14 @@ const EnhancedTableToolbar = (props) => {
     const handleClose = () => {
         setOpen(false);
     };
+
+    const handleClickDelete = () => {
+        setShow(true);
+    };
+
+    const handleClickClose = () => {
+        setShow(false);
+    }
 
     //For Adding Data in DB
     const Modal = () => {
@@ -207,6 +206,60 @@ const EnhancedTableToolbar = (props) => {
         );
     };
 
+    //Delete Data
+    const Del = () => {
+        const remove = () => {
+            // Axios.delete({
+            //     method: 'DELETE',
+            //     data: data,
+            //     withCredentials: true,
+            //     url: "http://localhost:3001/delete",
+            // })
+            //     .then(res => {
+            //         handleClickClose();
+            //         alert("Employee Removed.");
+            //     })
+            // Axios.delete("http://localhost:3001/delete", data)
+            //     .then(res => {
+            //         handleClickClose();
+            //         alert("Employee Removed.");
+            //     })
+            Axios.delete("http://localhost:3001/delete", {
+                headers: {
+                  Authorization: ""
+                },
+                data: {
+                  id: data
+                }
+              });
+        };
+
+        return (
+            <Dialog
+                open={show}
+                TransitionComponent={Transition}
+                keepMounted
+                onClose={handleClickClose}
+                aria-labelledby="alert-dialog-slide-title"
+            >
+                <DialogTitle id="form-dialog-title">
+                    {(numSelected > 1) ? 'Remove Employees?' : 'Remove Employee?'}
+                </DialogTitle>
+                <DialogContent>
+                    <Typography>Do you want to remove this employee?</Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClickClose} color="primary">
+                        No
+                        </Button>
+                    <Button onClick={remove} color="primary">
+                        Yes
+                        </Button>
+                </DialogActions>
+            </Dialog>
+        );
+    };
+
     return (
         <Toolbar
             className={clsx(classes.root, {
@@ -226,7 +279,8 @@ const EnhancedTableToolbar = (props) => {
             {numSelected > 0 ? (
                 <Tooltip title="Delete">
                     <IconButton aria-label="delete">
-                        <DeleteIcon />
+                        <DeleteIcon onClick={handleClickDelete} />
+                        <Del />
                     </IconButton>
                 </Tooltip>
             ) : (
@@ -311,10 +365,29 @@ const RegisteredModal = () => {
 export default function Content() {
     const classes = useStyles();
     const [order, setOrder] = React.useState('asc');
-    const [orderBy, setOrderBy] = React.useState('calories');
+    const [orderBy, setOrderBy] = React.useState('ID');
     const [selected, setSelected] = React.useState([]);
     const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(7);
+    const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    const [employees, setEmployees] = React.useState([]);
+    const [rows, setRows] = React.useState([]);
+    const [selectedID, setSelectedID] = React.useState(0);
+
+
+    //Retrieve data from DB
+    React.useEffect(() => {
+        Axios({
+            method: "GET",
+            withCredentials: true,
+            url: "http://localhost:3001/users",
+        }).then((res) => {
+            setRows(res.data);
+            setEmployees(res.data);
+            // console.log(rows);
+            // console.log(employees);
+        });
+    }, []);
+
 
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -324,19 +397,19 @@ export default function Content() {
 
     const handleSelectAllClick = (event) => {
         if (event.target.checked) {
-            const newSelecteds = rows.map((n) => n.name);
+            const newSelecteds = rows.map((n) => n.employeeID);
             setSelected(newSelecteds);
             return;
         }
         setSelected([]);
     };
 
-    const handleClick = (event, name) => {
-        const selectedIndex = selected.indexOf(name);
+    const handleClick = (event, id) => {
+        const selectedIndex = selected.indexOf(id);
         let newSelected = [];
 
         if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, name);
+            newSelected = newSelected.concat(selected, id);
         } else if (selectedIndex === 0) {
             newSelected = newSelected.concat(selected.slice(1));
         } else if (selectedIndex === selected.length - 1) {
@@ -349,17 +422,7 @@ export default function Content() {
         }
 
         setSelected(newSelected);
-    };
-
-    //For Checking if Available, Not Available or Out of Stock
-    const availability = (status) => {
-        if (status == 'available') {
-            return ("Available");
-        } else if (status == 'not available') {
-            return ("Not Available");
-        } else {
-            return ("Out of Stock");
-        }
+        setSelectedID(id);
     };
 
     const handleChangePage = (event, newPage) => {
@@ -371,14 +434,14 @@ export default function Content() {
         setPage(0);
     };
 
-    const isSelected = (name) => selected.indexOf(name) !== -1;
+    const isSelected = (id) => selected.indexOf(id) !== -1;
 
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
 
     return (
         <div className={classes.root}>
             <Paper className={classes.paper} elevation={3}>
-                <EnhancedTableToolbar numSelected={selected.length} />
+                <EnhancedTableToolbar numSelected={selected.length} data={selectedID} />
                 <TableContainer>
                     <Table
                         className={classes.table}
@@ -398,17 +461,17 @@ export default function Content() {
                             {stableSort(rows, getComparator(order, orderBy))
                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                 .map((row, index) => {
-                                    const isItemSelected = isSelected(row.name);
+                                    const isItemSelected = isSelected(row.employeeID);
                                     const labelId = `enhanced-table-checkbox-${index}`;
 
                                     return (
                                         <TableRow
                                             hover
-                                            onClick={(event) => handleClick(event, row.name)}
+                                            onClick={(event) => handleClick(event, row.employeeID)}
                                             role="checkbox"
                                             aria-checked={isItemSelected}
                                             tabIndex={-1}
-                                            key={row.id}
+                                            key={row.employeeID}
                                             selected={isItemSelected}
                                         >
                                             <TableCell padding="checkbox">
@@ -418,13 +481,13 @@ export default function Content() {
                                                 />
                                             </TableCell>
                                             <TableCell component="th" id={labelId} scope="row" padding="none">
-                                                {row.id}
+                                                {row.employeeID}
                                             </TableCell>
-                                            <TableCell>{row.name}</TableCell>
-                                            <TableCell>{row.email}</TableCell>
-                                            <TableCell>{row.password}</TableCell>
-                                            <TableCell>{row.number}</TableCell>
-                                            <TableCell>{row.job}</TableCell>
+                                            <TableCell>{row.employeeLname + " " + row.employeeFname}</TableCell>
+                                            <TableCell>{row.employeeEmail}</TableCell>
+                                            <TableCell>{row.employeePassword}</TableCell>
+                                            <TableCell>{row.contactNo}</TableCell>
+                                            <TableCell>{row.jobTitle.toUpperCase()}</TableCell>
                                         </TableRow>
                                     );
                                 })}

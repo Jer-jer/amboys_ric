@@ -61,18 +61,6 @@ app.post('/register', (req, res) => {
     const contact = req.body.contact;
     const job = req.body.job.toLowerCase();
 
-    // with encryption
-    // bcrypt.hash(empPass, saltRounds, (err, hash) => {
-    //     if (err) throw err
-
-    //     db.query("INSERT INTO employee (employeeID, employeeLname, employeeFname, employeeEmail, employeePassword, contactNo, jobTitle) VALUES (?,?,?,?,?)",
-    //         [empID, empLname, empFname, empEmail, hash, contact, job],
-    //         (err, result) => {
-    //             if (err) throw err
-    //         })
-
-    // })
-
     db.query("INSERT INTO employee (employeeID, employeeLname, employeeFname, employeeEmail, employeePassword, contactNo, jobTitle) VALUES (?,?,?,?,?,?,?)",
         [empID, empLname, empFname, empEmail, empPass, contact, job],
         (err, result) => {
@@ -101,29 +89,17 @@ app.post('/login', (req, res, next) => {
             })
         }
     })(req, res, next)
+})
 
-
-    // FOR BCRYPT ENCRYPTION
-    // db.query(
-    //     "SELECT * FROM employee WHERE employeeEmail = ?;",
-    //     email,
-    //     (err, result) => {
-    //         if (err) {
-    //             res.send({err: err});
-    //         }
-
-    //         if (result.length > 0) {
-    //             bycrypt.compare(password, result[0].password, (err, response) => {
-    //                 if(reponse){
-    //                     res.send(result);
-    //                 }else{
-    //                     res.send({ message: "Wrong username/passowrd" });
-    //                 }
-    //             });
-    //         } else {
-    //             res.send({ message: "User doesn't exist" });
-    //         }
-    // })
+app.get('/delete', (req, res) => {
+    const empID = req.body.id;
+    db.query("DELETE FROM employee WHERE employeeID = ?", 
+        empID,
+        (err, res) => {
+            if (err) throw err
+            res.send(result)
+        }
+    )
 })
 
 app.get('/users', (req, res) => {

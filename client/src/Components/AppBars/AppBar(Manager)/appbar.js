@@ -76,7 +76,6 @@ export default function AppBarManager({ user }) {
 
     const handleChangeTab = (event, newValue) => {
         setValue(newValue);
-        console.log(value);
     };
 
     const logOut = () => {
