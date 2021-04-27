@@ -4,9 +4,10 @@ import { TableHead, TableSortLabel, TableRow, TableCell, Checkbox } from '@mater
 const headCells = [
     { id: 'id', numeric: false, disablePadding: true, label: 'Product ID' },
     { id: 'name', numeric: false, disablePadding: false, label: 'Product Name' },
-    { id: 'price', numeric: true, disablePadding: false, label: 'Price (Php.)' },
     { id: 'quantity', numeric: true, disablePadding: false, label: 'Quantity' },
+    { id: 'price', numeric: true, disablePadding: false, label: 'Price (Php.)' },
     { id: 'status', numeric: false, disablePadding: false, label: 'Status' },
+    { id: 'edit', numeric: false, disablePadding: false, label: '' },
 ];
 
 export default function EnhancedTableHead(props) {
@@ -39,7 +40,19 @@ export default function EnhancedTableHead(props) {
                     />
                 </TableCell>
                 {headCells.map((headCell) => (
-                    <TableCell
+                    (headCell.id == 'edit')?
+                    (
+                        <TableCell
+                        key={headCell.id}
+                        align={check(headCell)}
+                        padding={headCell.disablePadding ? 'none' : 'default'}
+                        >
+                        <TableSortLabel>
+                            {headCell.label}
+                        </TableSortLabel>
+                    </TableCell>
+                    ) : (
+                        <TableCell
                         key={headCell.id}
                         align={check(headCell)}
                         padding={headCell.disablePadding ? 'none' : 'default'}
@@ -58,6 +71,7 @@ export default function EnhancedTableHead(props) {
                             ) : null}
                         </TableSortLabel>
                     </TableCell>
+                    )
                 ))}
             </TableRow>
         </TableHead>

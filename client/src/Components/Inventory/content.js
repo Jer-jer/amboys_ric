@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { lighten, makeStyles } from '@material-ui/core/styles';
+import Axios from 'axios';
 
 //For Table
 import { Table, TableBody, TableCell, TableContainer, TablePagination } from '@material-ui/core'
@@ -24,22 +25,22 @@ import getComparator from './comparator';
 import AddForm from './form/form_content';
 
 
-//Retrieve Data from DB
-const rows = [
-    createData(305, 'Cupcake', 3.7, 20.00, "available"),
-    createData(452, 'Donut', 25.0, 20.00, "available"),
-    createData(262, 'Eclair', 16.0, 20.00, "not available"),
-    createData(159, 'Frozen yoghurt', 6.0, 20.00, "available"),
-    createData(356, 'Gingerbread', 16.0, 20.00, "not available"),
-    createData(408, 'Honeycomb', 3.2, 10, 20.00, "not available"),
-    createData(237, 'Ice cream sandwich', 9.0, 20.00, "out of stock"),
-    createData(375, 'Jelly Bean', 0.0, 20.00, "available"),
-    createData(518, 'KitKat', 26.0, 20.00, "out of stock"),
-    createData(392, 'Lollipop', 0.2, 20.00, "out of stock"),
-    createData(318, 'Marshmallow', 0, 20.00, "not available"),
-    createData(360, 'Nougat', 19.0, 20.00, "not available"),
-    createData(437, 'Oreo', 18.0, 20.00, "available"),
-];
+// Retrieve Data from DB
+// const rows = [
+//     createData(305, 'Cupcake', 3.7, 20.00, "available"),
+//     createData(452, 'Donut', 25.0, 20.00, "available"),
+//     createData(262, 'Eclair', 16.0, 20.00, "not available"),
+//     createData(159, 'Frozen yoghurt', 6.0, 20.00, "available"),
+//     createData(356, 'Gingerbread', 16.0, 20.00, "not available"),
+//     createData(408, 'Honeycomb', 3.2, 10, 20.00, "not available"),
+//     createData(237, 'Ice cream sandwich', 9.0, 20.00, "out of stock"),
+//     createData(375, 'Jelly Bean', 0.0, 20.00, "available"),
+//     createData(518, 'KitKat', 26.0, 20.00, "out of stock"),
+//     createData(392, 'Lollipop', 0.2, 20.00, "out of stock"),
+//     createData(318, 'Marshmallow', 0, 20.00, "not available"),
+//     createData(360, 'Nougat', 19.0, 20.00, "not available"),
+//     createData(437, 'Oreo', 18.0, 20.00, "available"),
+// ];
 
 EnhancedTableHead.propTypes = {
     classes: PropTypes.object.isRequired,
@@ -92,9 +93,61 @@ const EnhancedTableToolbar = (props) => {
 
     //For Adding Data in DB
     const Modal = () => {
+        const [product, setProduct] = React.useState({
+            id: 0,
+            prodName: '',
+            prodQuantity: 0,
+            price: 0.00,
+            stats: 'available',
+        });
+
+        const handleChange = (props) => (event) => {
+            const forID = /^-?\d*$/;
+            const forQuant = /^\d*$/;
+            const forPrice = /^-?\d*[.,]?\d{0,2}$/;
+
+            if(props == 'id'){
+                if (event.target.value === '' || forID.test(event.target.value)) {
+                    setProduct({ ...product, 'id': event.target.value });
+                }
+            }else if(props == 'price'){
+                if (event.target.value === '' || forPrice.test(event.target.value)) {
+                    setProduct({ ...product, 'price': event.target.value });
+                }
+            }else if(props == 'prodQuantity'){
+                if ((event.target.value === '' || parseInt(event.target.value) <= 500) && 
+                forQuant.test(event.target.value)){
+                    setProduct({ ...product, 'prodQuantity': event.target.value });
+                }
+            }else{
+                setProduct({ ...product, [props]: event.target.value });
+            }
+        };
+
+
+        // Register
+        const add = () => {
+            Axios({
+                method: 'POST',
+                data: {
+                    prodID: product.id,
+                    prodName: product.prodName,
+                    prodQuant: product.prodQuantity,
+                    prodPrice: product.price,
+                    prodStats: product.stats,
+                },
+                withCredentials: true,
+                url: "http://localhost:3001/add_inventory",
+            })
+                .then(res => {
+                    handleClose();
+                    alert("Product Added.");
+                })
+        };
+
         return (
             <form>
-                <Dialog 
+                <Dialog
                     open={open}
                     TransitionComponent={Transition}
                     keepMounted
@@ -106,13 +159,14 @@ const EnhancedTableToolbar = (props) => {
                         <DialogContentText>
                             Please add the product truthfully and honestly
                         </DialogContentText>
-                            <AddForm />
+                        <AddForm
+                            product={product} handleChange={handleChange} />
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleClose} color="primary">
                             Cancel
                         </Button>
-                        <Button onClick={handleClose} color="primary">
+                        <Button onClick={add} color="primary">
                             Add
                         </Button>
                     </DialogActions>
@@ -186,10 +240,35 @@ const useStyles = makeStyles((theme) => ({
 export default function Content() {
     const classes = useStyles();
     const [order, setOrder] = React.useState('asc');
-    const [orderBy, setOrderBy] = React.useState('calories');
+    const [orderBy, setOrderBy] = React.useState('name');
     const [selected, setSelected] = React.useState([]);
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    // const [rows, setRows] = React.useState([]);
+    var dummy = [];
+    var rows = [];
+
+    //Retrieve data from DB
+    var i = 0
+    React.useEffect(() => {
+        Axios({
+            method: "GET",
+            withCredentials: true,
+            url: "http://localhost:3001/inventories",
+        }).then((res) => {
+            // console.log(res.data[0]);
+            res.data.map((data) => {
+                rows.push(createData(data.productID, data.productName, data.productQuantity, data.price, data.stats.toUpperCase()));
+            });
+        });
+    }, []);
+
+    // dummy.forEach((item, index) => {
+    //     setRows(dummy => [...dummy, newElement]);
+    //     console.log(item);
+    // });
+    // console.log(rows);
+    // createData(data.productID, data.productName, data.productQuantity, data.price, data.stats.toUpperCase()),
 
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -293,12 +372,13 @@ export default function Content() {
                                                 />
                                             </TableCell>
                                             <TableCell component="th" id={labelId} scope="row" padding="none">
-                                                {row.id}
+                                                {row.productID}
                                             </TableCell>
-                                            <TableCell>{row.name}</TableCell>
+                                            <TableCell>{row.productName}</TableCell>
+                                            <TableCell align="right">{row.productQuantity}</TableCell>
                                             <TableCell align="right">{row.price}</TableCell>
-                                            <TableCell align="right">{row.quantity}</TableCell>
-                                            <TableCell align="center">{availability(row.status)}</TableCell>
+                                            <TableCell align="center">{availability(row.stats)}</TableCell>
+                                            <TableCell align="center">Edit</TableCell>
                                         </TableRow>
                                     );
                                 })}

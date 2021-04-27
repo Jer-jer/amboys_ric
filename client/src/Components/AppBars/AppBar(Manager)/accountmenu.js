@@ -1,7 +1,10 @@
 import React from 'react';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import { Link } from 'react-router-dom';
+
+//Custom Import
+import '../../../materials/css/accountmenu.css'
 
 export default function AccountMenu({ anchorEl, isMenuOpen, handleMenuClose, logOut }) {
     const menuId = 'primary-search-account-menu';
@@ -16,6 +19,7 @@ export default function AccountMenu({ anchorEl, isMenuOpen, handleMenuClose, log
                 onClose={handleMenuClose}
                 getContentAnchorEl={null}
             >
+                <MenuItem onClick={handleMenuClose}><Link to='/order_form' className="order">Order</Link></MenuItem>
                 <MenuItem onClick={handleMenuClose}>My account</MenuItem>
                 <MenuItem onClick={logOut}>Logout</MenuItem>
             </Menu>

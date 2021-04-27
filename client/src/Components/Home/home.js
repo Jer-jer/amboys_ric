@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, Redirect } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route, withRouter, Link, Redirect } from 'react-router-dom';
 import { Button } from '@material-ui/core';
 import Axios from 'axios';
 
@@ -9,18 +9,21 @@ import Logo from '../Logo(temp)/logo'
 import Inventory from '../Inventory/inventory';
 
 export default function Home() {
-  const [user, getUser] = useState(null);
+  // const [checker, setChecker] = useState(false);
+  // const [user, getUser] = useState(null);
 
-  useEffect(() => {
-    Axios({
-      method: 'GET',
-      withCredentials: true,
-      url: "http://localhost:3001/user",
-    })
-    .then((res) => {
-        getUser(res.data);
-    })
-  }, [])
+  // useEffect(() => {
+  //   Axios({
+  //     method: 'GET',
+  //     withCredentials: true,
+  //     url: "http://localhost:3001/user",
+  //   })
+  //     .then((res) => {
+  //       if(res.data != null){
+  //         setChecker(true);
+  //       }
+  //     })
+  // }, [])
 
   const notLoggedin = (
     <div className="home">
@@ -40,13 +43,31 @@ export default function Home() {
   );
 
   return (
-    <div>
-      {(user) ? (
-        <Inventory user={user} />
-      ) : (
-        notLoggedin
-      )}
+    // <Router>
+    //   <Route exact path="/">
+    //     {checker == true ? <Inventory /> : notLoggedin}
+    //   </Route>
+    <div className="home">
+      <Logo />
+      <Link to="/login">
+        <Button variant="contained" color="primary">
+          Login
+        </Button>
+      </Link>
+      <br />
+      <Link to="/order">
+        <Button variant="contained" color="primary">
+          Order
+        </Button>
+      </Link>
     </div>
+      // {notLoggedin}
+      // {/* {(user) ? (
+      //   <Inventory user={user} />
+      // ) : (
+      //   notLoggedin
+      // )} */}
+    // </Router>
   );
 }
 

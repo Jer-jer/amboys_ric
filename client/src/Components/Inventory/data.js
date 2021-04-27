@@ -1,5 +1,5 @@
 import React from 'react';
 
-export default function createData(id, name, price, quantity, status) {
-    return { id, name, price, quantity, status };
+export default function createData(id, name, quantity, price, status) {
+    return { id, name, quantity, price, status };
 }

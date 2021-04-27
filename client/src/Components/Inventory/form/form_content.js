@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { createMuiTheme, makeStyles } from '@material-ui/core/styles';
-import { Button, TextField, FormControl, Grid } from '@material-ui/core';
+import { TextField, FormControl, Grid } from '@material-ui/core';
 import { InputLabel, Input, InputAdornment } from '@material-ui/core';
 
+//Custom Imports
+import '../../../materials/css/addprod.css'
 const theme = createMuiTheme({
     overrides: {
         MuiFormControl: {
@@ -23,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function FormContent() {
+export default function FormContent({ product, handleChange }) {
     const classes = useStyles();
     const [values, setValues] = useState(0);
 
@@ -42,6 +44,7 @@ export default function FormContent() {
                             label="Product ID"
                             type="text"
                             helperText="How to create an ID is taught by the manager"
+                            onChange={handleChange('id')}
                             required
                         />
                     </FormControl>
@@ -52,6 +55,7 @@ export default function FormContent() {
                             id="prodName"
                             label="Product Name"
                             type="text"
+                            onChange={handleChange('prodName')}
                             required
                         />
                     </FormControl>
@@ -62,6 +66,9 @@ export default function FormContent() {
                             id="prodQuantity"
                             label="Product Quantity"
                             type="text"
+                            helperText="Product must be lower than 500"
+                            value={product.prodQuantity}
+                            onChange={handleChange('prodQuantity')}
                             required
                         />
                     </FormControl>
@@ -73,6 +80,8 @@ export default function FormContent() {
                             id="price"
                             onChange={handleAmount}
                             startAdornment={<InputAdornment position="start">Php</InputAdornment>}
+                            value={product.price}
+                            onChange={handleChange('price')}
                             required
                         />
                     </FormControl>
@@ -80,7 +89,7 @@ export default function FormContent() {
                 <Grid item xs={6}>
                     <FormControl disabled fullWidth>
                         <InputLabel htmlFor="component-disabled">Status</InputLabel>
-                        <Input id="status" value="Available" disabled />
+                        <Input id="status" value="Available" className="available" disabled />
                     </FormControl>
                 </Grid>
             </Grid>

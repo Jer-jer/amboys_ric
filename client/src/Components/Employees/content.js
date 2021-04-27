@@ -122,7 +122,7 @@ const useToolbarStyles = makeStyles((theme) => ({
 
 const EnhancedTableToolbar = (props) => {
     const classes = useToolbarStyles();
-    const { numSelected, data } = props;
+    var { numSelected, data, rows, setRows } = props;
     const [open, setOpen] = React.useState(false);
     const [show, setShow] = React.useState(false);
 
@@ -145,7 +145,7 @@ const EnhancedTableToolbar = (props) => {
     //For Adding Data in DB
     const Modal = () => {
         const [employee, setEmployee] = React.useState({
-            id: '',
+            id: 0,
             lastName: '',
             firstName: '',
             email: '',
@@ -208,30 +208,14 @@ const EnhancedTableToolbar = (props) => {
 
     //Delete Data
     const Del = () => {
-        const remove = () => {
-            // Axios.delete({
-            //     method: 'DELETE',
-            //     data: data,
-            //     withCredentials: true,
-            //     url: "http://localhost:3001/delete",
-            // })
-            //     .then(res => {
-            //         handleClickClose();
-            //         alert("Employee Removed.");
-            //     })
-            // Axios.delete("http://localhost:3001/delete", data)
-            //     .then(res => {
-            //         handleClickClose();
-            //         alert("Employee Removed.");
-            //     })
-            Axios.delete("http://localhost:3001/delete", {
-                headers: {
-                  Authorization: ""
-                },
-                data: {
-                  id: data
-                }
-              });
+        const remove = (id) => {
+            Axios.delete(`http://localhost:3001/delete/${id}`).then((response) => {
+                handleClickClose();
+                setRows(rows.filter((val)=> {
+                    return val.employeeID != id;
+                }));
+                alert("Employee Removed.");
+            })
         };
 
         return (
@@ -251,10 +235,10 @@ const EnhancedTableToolbar = (props) => {
                 <DialogActions>
                     <Button onClick={handleClickClose} color="primary">
                         No
-                        </Button>
-                    <Button onClick={remove} color="primary">
+                    </Button>
+                    <Button onClick={()=> {remove(data)}} color="primary">
                         Yes
-                        </Button>
+                    </Button>
                 </DialogActions>
             </Dialog>
         );
@@ -299,69 +283,6 @@ EnhancedTableToolbar.propTypes = {
     numSelected: PropTypes.number.isRequired,
 };
 
-const DialogRegTitle = withStyles(styles)((props) => {
-    const { children, classes, onClose, ...other } = props;
-    return (
-        <MuiDialogTitle disableTypography className={classes.root} {...other}>
-            <Typography variant="h6">{children}</Typography>
-            {onClose ? (
-                <IconButton aria-label="close" className={classes.closeButton} onClick={onClose}>
-                    <CloseIcon />
-                </IconButton>
-            ) : null}
-        </MuiDialogTitle>
-    );
-});
-
-const DialogRegContent = withStyles((theme) => ({
-    root: {
-        padding: theme.spacing(2),
-    },
-}))(MuiDialogContent);
-
-const DialogRegActions = withStyles((theme) => ({
-    root: {
-        margin: 0,
-        padding: theme.spacing(1),
-    },
-}))(MuiDialogActions);
-
-const RegisteredModal = () => {
-    const [show, setShow] = React.useState(true);
-
-    const handleClickOpenReg = () => {
-        setShow(true);
-    };
-    const handleCloseReg = () => {
-        setShow(false);
-    };
-
-    return (
-        <div>
-            <Dialog onClose={handleCloseReg} aria-labelledby="customized-dialog-title" open={show}>
-                <DialogRegTitle id="customized-dialog-title" onClose={handleCloseReg}>
-                    Modal title
-                </DialogRegTitle>
-                <DialogRegContent dividers>
-                    <Typography gutterBottom>
-                        Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac facilisis
-                        in, egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-                    </Typography>
-                    <Typography gutterBottom>
-                        Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Vivamus sagittis
-                        lacus vel augue laoreet rutrum faucibus dolor auctor.
-                    </Typography>
-                    <Typography gutterBottom>
-                        Aenean lacinia bibendum nulla sed consectetur. Praesent commodo cursus magna, vel
-                        scelerisque nisl consectetur et. Donec sed odio dui. Donec ullamcorper nulla non metus
-                        auctor fringilla.
-                    </Typography>
-                </DialogRegContent>
-            </Dialog>
-        </div>
-    );
-};
-
 export default function Content() {
     const classes = useStyles();
     const [order, setOrder] = React.useState('asc');
@@ -369,7 +290,6 @@ export default function Content() {
     const [selected, setSelected] = React.useState([]);
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
-    const [employees, setEmployees] = React.useState([]);
     const [rows, setRows] = React.useState([]);
     const [selectedID, setSelectedID] = React.useState(0);
 
@@ -382,7 +302,7 @@ export default function Content() {
             url: "http://localhost:3001/users",
         }).then((res) => {
             setRows(res.data);
-            setEmployees(res.data);
+            // setEmployees(res.data);
             // console.log(rows);
             // console.log(employees);
         });
@@ -441,7 +361,7 @@ export default function Content() {
     return (
         <div className={classes.root}>
             <Paper className={classes.paper} elevation={3}>
-                <EnhancedTableToolbar numSelected={selected.length} data={selectedID} />
+                <EnhancedTableToolbar numSelected={selected.length} data={selectedID} rows={rows} setRows={setRows}/>
                 <TableContainer>
                     <Table
                         className={classes.table}

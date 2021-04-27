@@ -40,7 +40,7 @@ export default function Form() {
             }else if(res.data == "No such employee exists"){
                 setLoginStatus(res.data)
             }else{
-                history.push('/');
+                window.location.reload(false);
             }
         })
      };

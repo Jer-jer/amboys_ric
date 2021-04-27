@@ -21,7 +21,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(flash())
 app.use(cors({
     origin: ("http://localhost:3000"),
-    methods: ("GET", "POST"),
+    methods: ("GET", "POST", "DELETE"),
     credentials: true,
     allowedHeaders: ['sessionId', 'Content-Type'],
     exposedHeaders: ['sessionId']
@@ -51,7 +51,7 @@ const db = mysql.createConnection({
 
 //=========================== MIDDLEWARE DONE ===========================//
 
-//Routes
+//Employee Routes
 app.post('/register', (req, res) => {
     const empID = req.body.empID;
     const empLname = req.body.empLname.toUpperCase();
@@ -91,15 +91,15 @@ app.post('/login', (req, res, next) => {
     })(req, res, next)
 })
 
-app.get('/delete', (req, res) => {
-    const empID = req.body.id;
-    db.query("DELETE FROM employee WHERE employeeID = ?", 
-        empID,
-        (err, res) => {
+app.delete('/delete/:id', (req, res) => {
+    const id = req.params.id
+
+    db.query("DELETE FROM employee WHERE employeeID = ?", id, (err, result) => {
             if (err) throw err
             res.send(result)
         }
     )
+
 })
 
 app.get('/users', (req, res) => {
@@ -107,7 +107,6 @@ app.get('/users', (req, res) => {
         (err, result) => {
             if (err) throw err
             res.send(result)
-            console.log(result)
     })
 })
 
@@ -118,6 +117,41 @@ app.get('/user', (req, res) => {
 app.get('/logout', (req, res) => {
     req.logout()
     res.send("success")
+})
+
+//Inventory Routes
+app.post('/add_inventory', (req, res) => {
+    const prodID = req.body.prodID;
+    const prodName = req.body.prodName.toUpperCase();
+    const prodQuant = req.body.prodQuant;
+    const prodPrice = req.body.prodPrice;
+    const prodStats = req.body.prodStats;
+
+    db.query("INSERT INTO products VALUES (?,?,?,?,?)",
+        [prodID, prodName, prodQuant, prodPrice, prodStats],
+        (err, result) => {
+            if (err) throw err
+            res.send(result)
+        })
+})
+
+app.get('/inventories', (req, res) => {
+    db.query("SELECT * FROM products;",
+        (err, result) => {
+            if (err) throw err
+            res.send(result)
+    })
+})
+
+app.delete('/delete_inventory/:id', (req, res) => {
+    const id = req.params.id
+
+    db.query("DELETE FROM products WHERE productID = ?", id, (err, result) => {
+            if (err) throw err
+            res.send(result)
+        }
+    )
+
 })
 
 //Start Server
