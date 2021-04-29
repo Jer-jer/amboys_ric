@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function FormContent({ employee, handleChange }) {
+export default function FormContent({ user, handleChange }) {
     const classes = useStyles();
     const [showPass, setShowPass] = useState(false); 
 
@@ -47,8 +47,8 @@ export default function FormContent({ employee, handleChange }) {
                             label="Employee ID"
                             type="text"
                             helperText="How to create an ID is taught by the manager"
-                            value={employee.id}
-                            onChange={handleChange('id')}
+                            value={user.empID}
+                            onChange={handleChange('empID')}
                             required
                         />
                     </FormControl>
@@ -59,7 +59,7 @@ export default function FormContent({ employee, handleChange }) {
                             id="emplName"
                             label="Last Name"
                             type="text"
-                            onChange={handleChange('lastName')}
+                            onChange={handleChange('empLname')}
                             required
                         />
                     </FormControl>
@@ -70,7 +70,7 @@ export default function FormContent({ employee, handleChange }) {
                             id="empfName"
                             label="First Name"
                             type="text"
-                            onChange={handleChange('firstName')}
+                            onChange={handleChange('empFname')}
                             required
                         />
                     </FormControl>
@@ -81,7 +81,7 @@ export default function FormContent({ employee, handleChange }) {
                             id="empEmail"
                             label="Email Address"
                             type="text"
-                            onChange={handleChange('email')}
+                            onChange={handleChange('empEmail')}
                             required
                         />
                     </FormControl>
@@ -92,7 +92,7 @@ export default function FormContent({ employee, handleChange }) {
                         <Input
                             id="standard-adornment-password"
                             type={showPass ? 'text' : 'password'}
-                            onChange={handleChange('password')}
+                            onChange={handleChange('empPass')}
                             endAdornment={
                                 <InputAdornment position="end">
                                     <IconButton
@@ -123,8 +123,8 @@ export default function FormContent({ employee, handleChange }) {
                         <InputLabel>Position</InputLabel>
                         <Select
                             id="demo-simple-select"
-                            value={employee.position}
-                            onChange={handleChange('position')}
+                            value={user.job}
+                            onChange={handleChange('job')}
                         >
                             <MenuItem value="waiter">Waiter</MenuItem>
                             <MenuItem value="cashier">Cashier</MenuItem>

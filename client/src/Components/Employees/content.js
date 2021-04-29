@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { lighten, makeStyles, withStyles } from '@material-ui/core/styles';
+import { useHistory } from "react-router-dom";
 import Axios from 'axios';
 
 //For Table
@@ -30,18 +31,258 @@ import stableSort from './stable_sort';
 import getComparator from './comparator';
 import AddForm from './form/form_content';
 
-const styles = (theme) => ({
-    root: {
-        margin: 0,
-        padding: theme.spacing(2),
-    },
-    closeButton: {
-        position: 'absolute',
-        right: theme.spacing(1),
-        top: theme.spacing(1),
-        color: theme.palette.grey[500],
-    },
+// Retrieve Data from DB
+// const rows = [
+//     createData(305, 'Cupcake', 3.7, 20.00, "available"),
+//     createData(452, 'Donut', 25.0, 20.00, "available"),
+//     createData(262, 'Eclair', 16.0, 20.00, "not available"),
+//     createData(159, 'Frozen yoghurt', 6.0, 20.00, "available"),
+//     createData(356, 'Gingerbread', 16.0, 20.00, "not available"),
+//     createData(408, 'Honeycomb', 3.2, 10, 20.00, "not available"),
+//     createData(237, 'Ice cream sandwich', 9.0, 20.00, "out of stock"),
+//     createData(375, 'Jelly Bean', 0.0, 20.00, "available"),
+//     createData(518, 'KitKat', 26.0, 20.00, "out of stock"),
+//     createData(392, 'Lollipop', 0.2, 20.00, "out of stock"),
+//     createData(318, 'Marshmallow', 0, 20.00, "not available"),
+//     createData(360, 'Nougat', 19.0, 20.00, "not available"),
+//     createData(437, 'Oreo', 18.0, 20.00, "available"),
+// ];
+
+const rows = [];
+Axios({
+    method: "GET",
+    withCredentials: true,
+    url: "http://localhost:3001/users",
+}).then((res) => {
+    // console.log(res.data[0]);
+    res.data.map((data) => {
+        rows.push(
+            createData(
+                data.employeeID, data.employeeLname + " " + data.employeeFname,
+                data.employeeEmail, data.employeePassword, data.contactNo, data.jobTitle.toUpperCase()
+            )
+        );
+    });
 });
+
+EnhancedTableHead.propTypes = {
+    classes: PropTypes.object.isRequired,
+    numSelected: PropTypes.number.isRequired,
+    onRequestSort: PropTypes.func.isRequired,
+    onSelectAllClick: PropTypes.func.isRequired,
+    order: PropTypes.oneOf(['asc', 'desc']).isRequired,
+    orderBy: PropTypes.string.isRequired,
+    rowCount: PropTypes.number.isRequired,
+};
+
+//For Toolbar
+const useToolbarStyles = makeStyles((theme) => ({
+    root: {
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(1),
+    },
+    highlight:
+        theme.palette.type === 'light'
+            ? {
+                color: theme.palette.secondary.main,
+                backgroundColor: lighten(theme.palette.secondary.light, 0.85),
+            }
+            : {
+                color: theme.palette.text.primary,
+                backgroundColor: theme.palette.secondary.dark,
+            },
+    title: {
+        flex: '1 1 100%',
+    },
+}));
+
+//Modal Transition
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
+
+const EnhancedTableToolbar = (props) => {
+    const classes = useToolbarStyles();
+    const { numSelected, empId } = props;
+    const [open, setOpen] = React.useState(false);
+    const [show, setShow] = React.useState(false);
+
+
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    const handleDelOpen = () => {
+        setShow(true);
+    };
+
+    const handleDelClose = () => {
+        setShow(false);
+    };
+
+    //For Adding Data in DB
+    const Modal = () => {
+        const [user, setUser] = React.useState({
+            empID: 0,
+            empLname: '',
+            empFname: '',
+            empEmail: '',
+            empPass: '',
+            contact: '',
+            job: 'waiter',
+        });
+
+        const handleChange = (props) => (event) => {
+            const forID = /^-?\d*$/;
+
+            if (props == 'empID') {
+                if (event.target.value === '' || forID.test(event.target.value)) {
+                    setUser({ ...user, 'empID': event.target.value });
+                }
+            } else {
+                setUser({ ...user, [props]: event.target.value });
+            }
+        };
+
+
+        // Register
+        const add = () => {
+            Axios({
+                method: 'POST',
+                data: {
+                    empID: user.empID,
+                    empLname: user.empLname,
+                    empFname: user.empFname,
+                    empEmail: user.empEmail,
+                    empPass: user.empPass,
+                    contact: user.contact,
+                    job: user.job,
+                },
+                withCredentials: true,
+                url: "http://localhost:3001/register",
+            })
+                .then(res => {
+                    handleClose();
+                    alert("Product Added.");
+                    window.location.reload(false);
+                })
+        };
+
+        return (
+            <form>
+                <Dialog
+                    open={open}
+                    TransitionComponent={Transition}
+                    keepMounted
+                    onClose={handleClose}
+                    aria-labelledby="alert-dialog-slide-title"
+                >
+                    <DialogTitle id="form-dialog-title">Add Product</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Please add the product truthfully and honestly
+                        </DialogContentText>
+                        <AddForm user={user} handleChange={handleChange} />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleClose} color="primary">
+                            Cancel
+                        </Button>
+                        <Button onClick={add} color="primary">
+                            Add
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            </form>
+        );
+    };
+
+    //For Deleting Data in DB
+    const DelModal = () => {
+        const del = () => {
+            // Axios.delete(`http://localhost:3001/delete/${numSelected}`)
+            Axios({
+                method: 'DELETE',
+                url: `http://localhost:3001/delete/${empId}`,
+            })
+                .then(res => {
+                    handleClose();
+                    alert("Employee Removed.");
+                    window.location.reload(false);
+                })
+        };
+
+        return (
+            <form>
+                <Dialog
+                    open={show}
+                    TransitionComponent={Transition}
+                    keepMounted
+                    onClose={handleDelClose}
+                    aria-labelledby="alert-dialog-slide-title"
+                >
+                    <DialogTitle id="form-dialog-title">Add Product</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Are you sure to delete?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleDelClose} color="primary">
+                            Cancel
+                        </Button>
+                        <Button onClick={del} color="primary">
+                            Delete
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            </form>
+        );
+    }
+
+    return (
+        <Toolbar
+            className={clsx(classes.root, {
+                [classes.highlight]: numSelected > 0,
+            })}
+        >
+            {numSelected > 0 ? (
+                <Typography className={classes.title} color="inherit" variant="subtitle1" component="div">
+                    {numSelected} selected
+                </Typography>
+            ) : (
+                <Typography className={classes.title} variant="h6" id="tableTitle" component="div">
+                    Products
+                </Typography>
+            )}
+
+            {numSelected > 0 ? (
+                <Tooltip title="Delete">
+                    <IconButton aria-label="delete">
+                        <DeleteIcon onClick={handleDelOpen} />
+                        <DelModal />
+                    </IconButton>
+                </Tooltip>
+            ) : (
+                <Tooltip title="Add Product">
+                    <IconButton aria-label="add product">
+                        <AddIcon onClick={handleClickOpen} />
+                        <Modal />
+                    </IconButton>
+                </Tooltip>
+            )}
+        </Toolbar>
+    );
+};
+
+EnhancedTableToolbar.propTypes = {
+    numSelected: PropTypes.number.isRequired,
+    empId: PropTypes.number.isRequired,
+};
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -67,247 +308,17 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-// Original sample Table data
-const sample = [
-    createData(305, 'Sakata Gintoki', 'zdkr.ah@modabet47.com', '123456', "09458034816", "Manager"),
-    createData(452, 'Sukehiro Yami', 'nabil.nounits@smrn420.com', '123456', "09458034816", "Manager"),
-    createData(262, 'Uzumaki Naruto', 'kmos@region13.cf', '123456', "09458034816", "Manager"),
-    createData(159, 'Uchiha Sasuke', 'kmos@region13.cf', '123456', "09458034816", "Manager"),
-    createData(356, 'Shimura Shinpachi', 'qjoseluis@ladieswhobrunch.net', '123456', "09458034816", "Manager"),
-    createData(408, 'Kotaro Katsuro', 'vahmed@bbtspage.com', '123456', "n09458034816", "Manager"),
-    createData(237, 'Jonathan Joestar', 'vtechnol@king.buzz', '123456', "09458034816", "Manager"),
-    createData(375, 'Jotaro Kujo', 'dahmedcena14n@changenypd.com', '123456', "09458034816", "Manager"),
-    createData(518, 'Giorno Giovanna', '3veer.zaara.12@king.buzz', '123456', "09458034816", "Manager"),
-    createData(392, 'Joseph Joestar', 'hdina.samer@mwoodman.com', '123456', "09458034816", "Manager"),
-    createData(318, 'Takasugi Shinsuke', 'qboz@domy.me', '123456', "09458034816", "Manager"),
-    createData(360, 'Barry Allen', 'crannahab@apilasansor.com', '123456', "09458034816", "Manager"),
-    createData(437, 'Wally West', 'mgmahmoud53@greendike.com', '123456', "09458034816", "Manager"),
-];
-
-EnhancedTableHead.propTypes = {
-    classes: PropTypes.object.isRequired,
-    numSelected: PropTypes.number.isRequired,
-    onRequestSort: PropTypes.func.isRequired,
-    onSelectAllClick: PropTypes.func.isRequired,
-    order: PropTypes.oneOf(['asc', 'desc']).isRequired,
-    orderBy: PropTypes.string.isRequired,
-    rowCount: PropTypes.number.isRequired,
-};
-
-//Modal Transition
-const Transition = React.forwardRef(function Transition(props, ref) {
-    return <Slide direction="up" ref={ref} {...props} />;
-});
-
-//For Toolbar
-const useToolbarStyles = makeStyles((theme) => ({
-    root: {
-        paddingLeft: theme.spacing(2),
-        paddingRight: theme.spacing(1),
-    },
-    highlight:
-        theme.palette.type === 'light'
-            ? {
-                color: theme.palette.secondary.main,
-                backgroundColor: lighten(theme.palette.secondary.light, 0.85),
-            }
-            : {
-                color: theme.palette.text.primary,
-                backgroundColor: theme.palette.secondary.dark,
-            },
-    title: {
-        flex: '1 1 100%',
-    },
-}));
-
-const EnhancedTableToolbar = (props) => {
-    const classes = useToolbarStyles();
-    var { numSelected, data, rows, setRows } = props;
-    const [open, setOpen] = React.useState(false);
-    const [show, setShow] = React.useState(false);
-
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-    };
-
-    const handleClickDelete = () => {
-        setShow(true);
-    };
-
-    const handleClickClose = () => {
-        setShow(false);
-    }
-
-    //For Adding Data in DB
-    const Modal = () => {
-        const [employee, setEmployee] = React.useState({
-            id: 0,
-            lastName: '',
-            firstName: '',
-            email: '',
-            password: '',
-            contact: '',
-            position: 'waiter',
-        });
-
-        const handleChange = (props) => (event) => {
-            setEmployee({ ...employee, [props]: event.target.value });
-        };
-
-        // Register
-        const register = () => {
-            Axios({
-                method: 'POST',
-                data: {
-                    empID: employee.id,
-                    empLname: employee.lastName,
-                    empFname: employee.firstName,
-                    empEmail: employee.email,
-                    empPass: employee.password,
-                    contact: employee.contact,
-                    job: employee.position
-                },
-                withCredentials: true,
-                url: "http://localhost:3001/register",
-            })
-                .then(res => {
-                    handleClose();
-                    alert("Employee Registered.");
-                })
-        };
-
-        return (
-            <form>
-                <Dialog
-                    open={open}
-                    TransitionComponent={Transition}
-                    keepMounted
-                    onClose={handleClose}
-                    aria-labelledby="alert-dialog-slide-title"
-                >
-                    <DialogTitle id="form-dialog-title">Register Employee</DialogTitle>
-                    <DialogContent>
-                        <AddForm employee={employee} handleChange={handleChange} />
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleClose} color="primary">
-                            Cancel
-                        </Button>
-                        <Button onClick={register} color="primary">
-                            Add
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </form>
-        );
-    };
-
-    //Delete Data
-    const Del = () => {
-        const remove = (id) => {
-            Axios.delete(`http://localhost:3001/delete/${id}`).then((response) => {
-                handleClickClose();
-                setRows(rows.filter((val)=> {
-                    return val.employeeID != id;
-                }));
-                alert("Employee Removed.");
-            })
-        };
-
-        return (
-            <Dialog
-                open={show}
-                TransitionComponent={Transition}
-                keepMounted
-                onClose={handleClickClose}
-                aria-labelledby="alert-dialog-slide-title"
-            >
-                <DialogTitle id="form-dialog-title">
-                    {(numSelected > 1) ? 'Remove Employees?' : 'Remove Employee?'}
-                </DialogTitle>
-                <DialogContent>
-                    <Typography>Do you want to remove this employee?</Typography>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClickClose} color="primary">
-                        No
-                    </Button>
-                    <Button onClick={()=> {remove(data)}} color="primary">
-                        Yes
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        );
-    };
-
-    return (
-        <Toolbar
-            className={clsx(classes.root, {
-                [classes.highlight]: numSelected > 0,
-            })}
-        >
-            {numSelected > 0 ? (
-                <Typography className={classes.title} color="inherit" variant="subtitle1" component="div">
-                    {numSelected} selected
-                </Typography>
-            ) : (
-                <Typography className={classes.title} variant="h6" id="tableTitle" component="div">
-                    Employees
-                </Typography>
-            )}
-
-            {numSelected > 0 ? (
-                <Tooltip title="Delete">
-                    <IconButton aria-label="delete">
-                        <DeleteIcon onClick={handleClickDelete} />
-                        <Del />
-                    </IconButton>
-                </Tooltip>
-            ) : (
-                <Tooltip title="Add Product">
-                    <IconButton aria-label="add product">
-                        <AddIcon onClick={handleClickOpen} />
-                        <Modal />
-                    </IconButton>
-                </Tooltip>
-            )}
-        </Toolbar>
-    );
-};
-
-EnhancedTableToolbar.propTypes = {
-    numSelected: PropTypes.number.isRequired,
-};
-
 export default function Content() {
     const classes = useStyles();
     const [order, setOrder] = React.useState('asc');
-    const [orderBy, setOrderBy] = React.useState('ID');
+    const [orderBy, setOrderBy] = React.useState('name');
     const [selected, setSelected] = React.useState([]);
+    const [empId, setEmpID] = React.useState(0);
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
-    const [rows, setRows] = React.useState([]);
-    const [selectedID, setSelectedID] = React.useState(0);
-
 
     //Retrieve data from DB
-    React.useEffect(() => {
-        Axios({
-            method: "GET",
-            withCredentials: true,
-            url: "http://localhost:3001/users",
-        }).then((res) => {
-            setRows(res.data);
-            // setEmployees(res.data);
-            // console.log(rows);
-            // console.log(employees);
-        });
-    }, []);
-
+    console.log(rows);
 
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -317,7 +328,7 @@ export default function Content() {
 
     const handleSelectAllClick = (event) => {
         if (event.target.checked) {
-            const newSelecteds = rows.map((n) => n.employeeID);
+            const newSelecteds = rows.map((n) => n.id);
             setSelected(newSelecteds);
             return;
         }
@@ -342,7 +353,7 @@ export default function Content() {
         }
 
         setSelected(newSelected);
-        setSelectedID(id);
+        setEmpID(id)
     };
 
     const handleChangePage = (event, newPage) => {
@@ -361,7 +372,7 @@ export default function Content() {
     return (
         <div className={classes.root}>
             <Paper className={classes.paper} elevation={3}>
-                <EnhancedTableToolbar numSelected={selected.length} data={selectedID} rows={rows} setRows={setRows}/>
+                <EnhancedTableToolbar numSelected={selected.length} empId={empId}/>
                 <TableContainer>
                     <Table
                         className={classes.table}
@@ -381,17 +392,17 @@ export default function Content() {
                             {stableSort(rows, getComparator(order, orderBy))
                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                 .map((row, index) => {
-                                    const isItemSelected = isSelected(row.employeeID);
+                                    const isItemSelected = isSelected(row.id);
                                     const labelId = `enhanced-table-checkbox-${index}`;
 
                                     return (
                                         <TableRow
                                             hover
-                                            onClick={(event) => handleClick(event, row.employeeID)}
+                                            onClick={(event) => handleClick(event, row.id)}
                                             role="checkbox"
                                             aria-checked={isItemSelected}
                                             tabIndex={-1}
-                                            key={row.employeeID}
+                                            key={row.id}
                                             selected={isItemSelected}
                                         >
                                             <TableCell padding="checkbox">
@@ -401,13 +412,14 @@ export default function Content() {
                                                 />
                                             </TableCell>
                                             <TableCell component="th" id={labelId} scope="row" padding="none">
-                                                {row.employeeID}
+                                                {row.id}
                                             </TableCell>
-                                            <TableCell>{row.employeeLname + " " + row.employeeFname}</TableCell>
-                                            <TableCell>{row.employeeEmail}</TableCell>
-                                            <TableCell>{row.employeePassword}</TableCell>
-                                            <TableCell>{row.contactNo}</TableCell>
-                                            <TableCell>{row.jobTitle.toUpperCase()}</TableCell>
+                                            <TableCell>{row.name}</TableCell>
+                                            <TableCell align="left">{row.email}</TableCell>
+                                            <TableCell align="left">{row.password}</TableCell>
+                                            <TableCell align="left">{row.number}</TableCell>
+                                            <TableCell align="left">{row.job}</TableCell>
+                                            <TableCell align="center">Edit</TableCell>
                                         </TableRow>
                                     );
                                 })}

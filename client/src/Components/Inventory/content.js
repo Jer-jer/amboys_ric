@@ -41,6 +41,17 @@ import AddForm from './form/form_content';
 //     createData(360, 'Nougat', 19.0, 20.00, "not available"),
 //     createData(437, 'Oreo', 18.0, 20.00, "available"),
 // ];
+const rows = [];
+Axios({
+    method: "GET",
+    withCredentials: true,
+    url: "http://localhost:3001/inventories",
+}).then((res) => {
+    // console.log(res.data[0]);
+    res.data.map((data) => {
+        rows.push(createData(data.productID, data.productName, data.productQuantity, data.price, data.stats));
+    });
+});
 
 EnhancedTableHead.propTypes = {
     classes: PropTypes.object.isRequired,
@@ -80,8 +91,9 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const EnhancedTableToolbar = (props) => {
     const classes = useToolbarStyles();
-    const { numSelected } = props;
+    const { numSelected, invtID } = props;
     const [open, setOpen] = React.useState(false);
+    const [show, setShow] = React.useState(false);
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -89,6 +101,14 @@ const EnhancedTableToolbar = (props) => {
 
     const handleClose = () => {
         setOpen(false);
+    };
+
+    const handleDelOpen = () => {
+        setShow(true);
+    };
+
+    const handleDelClose = () => {
+        setShow(false);
     };
 
     //For Adding Data in DB
@@ -106,24 +126,23 @@ const EnhancedTableToolbar = (props) => {
             const forQuant = /^\d*$/;
             const forPrice = /^-?\d*[.,]?\d{0,2}$/;
 
-            if(props == 'id'){
+            if (props == 'id') {
                 if (event.target.value === '' || forID.test(event.target.value)) {
                     setProduct({ ...product, 'id': event.target.value });
                 }
-            }else if(props == 'price'){
+            } else if (props == 'price') {
                 if (event.target.value === '' || forPrice.test(event.target.value)) {
                     setProduct({ ...product, 'price': event.target.value });
                 }
-            }else if(props == 'prodQuantity'){
-                if ((event.target.value === '' || parseInt(event.target.value) <= 500) && 
-                forQuant.test(event.target.value)){
+            } else if (props == 'prodQuantity') {
+                if ((event.target.value === '' || parseInt(event.target.value) <= 500) &&
+                    forQuant.test(event.target.value)) {
                     setProduct({ ...product, 'prodQuantity': event.target.value });
                 }
-            }else{
+            } else {
                 setProduct({ ...product, [props]: event.target.value });
             }
         };
-
 
         // Register
         const add = () => {
@@ -142,6 +161,7 @@ const EnhancedTableToolbar = (props) => {
                 .then(res => {
                     handleClose();
                     alert("Product Added.");
+                    window.location.reload(false);
                 })
         };
 
@@ -175,6 +195,48 @@ const EnhancedTableToolbar = (props) => {
         );
     };
 
+    //For Deleting Data in DB
+    const DelModal = () => {
+        const del = () => {
+            Axios({
+                method: 'DELETE',
+                url: `http://localhost:3001/delete_inventory/${invtID}`,
+            })
+                .then(res => {
+                    handleClose();
+                    alert("Inventory Removed.");
+                    window.location.reload(false);
+                })
+        };
+
+        return (
+            <form>
+                <Dialog
+                    open={show}
+                    TransitionComponent={Transition}
+                    keepMounted
+                    onClose={handleDelClose}
+                    aria-labelledby="alert-dialog-slide-title"
+                >
+                    <DialogTitle id="form-dialog-title">Add Product</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Are you sure to delete?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleDelClose} color="primary">
+                            Cancel
+                        </Button>
+                        <Button onClick={del} color="primary">
+                            Delete
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            </form>
+        );
+    }
+
     return (
         <Toolbar
             className={clsx(classes.root, {
@@ -194,7 +256,8 @@ const EnhancedTableToolbar = (props) => {
             {numSelected > 0 ? (
                 <Tooltip title="Delete">
                     <IconButton aria-label="delete">
-                        <DeleteIcon />
+                        <DeleteIcon onClick={handleDelOpen}/>
+                        <DelModal />
                     </IconButton>
                 </Tooltip>
             ) : (
@@ -211,6 +274,7 @@ const EnhancedTableToolbar = (props) => {
 
 EnhancedTableToolbar.propTypes = {
     numSelected: PropTypes.number.isRequired,
+    invtID: PropTypes.number.isRequired,
 };
 
 const useStyles = makeStyles((theme) => ({
@@ -242,33 +306,12 @@ export default function Content() {
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('name');
     const [selected, setSelected] = React.useState([]);
+    const [invtID, setInvtID] = React.useState('');
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
-    // const [rows, setRows] = React.useState([]);
-    var dummy = [];
-    var rows = [];
 
     //Retrieve data from DB
-    var i = 0
-    React.useEffect(() => {
-        Axios({
-            method: "GET",
-            withCredentials: true,
-            url: "http://localhost:3001/inventories",
-        }).then((res) => {
-            // console.log(res.data[0]);
-            res.data.map((data) => {
-                rows.push(createData(data.productID, data.productName, data.productQuantity, data.price, data.stats.toUpperCase()));
-            });
-        });
-    }, []);
-
-    // dummy.forEach((item, index) => {
-    //     setRows(dummy => [...dummy, newElement]);
-    //     console.log(item);
-    // });
-    // console.log(rows);
-    // createData(data.productID, data.productName, data.productQuantity, data.price, data.stats.toUpperCase()),
+    console.log(rows);
 
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -278,19 +321,19 @@ export default function Content() {
 
     const handleSelectAllClick = (event) => {
         if (event.target.checked) {
-            const newSelecteds = rows.map((n) => n.name);
+            const newSelecteds = rows.map((n) => n.id);
             setSelected(newSelecteds);
             return;
         }
         setSelected([]);
     };
 
-    const handleClick = (event, name) => {
-        const selectedIndex = selected.indexOf(name);
+    const handleClick = (event, id) => {
+        const selectedIndex = selected.indexOf(id);
         let newSelected = [];
 
         if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, name);
+            newSelected = newSelected.concat(selected, id);
         } else if (selectedIndex === 0) {
             newSelected = newSelected.concat(selected.slice(1));
         } else if (selectedIndex === selected.length - 1) {
@@ -303,6 +346,7 @@ export default function Content() {
         }
 
         setSelected(newSelected);
+        setInvtID(id)
     };
 
     //For Checking if Available, Not Available or Out of Stock
@@ -325,14 +369,14 @@ export default function Content() {
         setPage(0);
     };
 
-    const isSelected = (name) => selected.indexOf(name) !== -1;
+    const isSelected = (id) => selected.indexOf(id) !== -1;
 
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
 
     return (
         <div className={classes.root}>
             <Paper className={classes.paper} elevation={3}>
-                <EnhancedTableToolbar numSelected={selected.length} />
+                <EnhancedTableToolbar numSelected={selected.length} invtID={invtID} />
                 <TableContainer>
                     <Table
                         className={classes.table}
@@ -352,13 +396,13 @@ export default function Content() {
                             {stableSort(rows, getComparator(order, orderBy))
                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                 .map((row, index) => {
-                                    const isItemSelected = isSelected(row.name);
+                                    const isItemSelected = isSelected(row.id);
                                     const labelId = `enhanced-table-checkbox-${index}`;
 
                                     return (
                                         <TableRow
                                             hover
-                                            onClick={(event) => handleClick(event, row.name)}
+                                            onClick={(event) => handleClick(event, row.id)}
                                             role="checkbox"
                                             aria-checked={isItemSelected}
                                             tabIndex={-1}
@@ -372,12 +416,12 @@ export default function Content() {
                                                 />
                                             </TableCell>
                                             <TableCell component="th" id={labelId} scope="row" padding="none">
-                                                {row.productID}
+                                                {row.id}
                                             </TableCell>
-                                            <TableCell>{row.productName}</TableCell>
-                                            <TableCell align="right">{row.productQuantity}</TableCell>
+                                            <TableCell>{row.name}</TableCell>
+                                            <TableCell align="right">{row.quantity}</TableCell>
                                             <TableCell align="right">{row.price}</TableCell>
-                                            <TableCell align="center">{availability(row.stats)}</TableCell>
+                                            <TableCell align="center">{availability(row.status)}</TableCell>
                                             <TableCell align="center">Edit</TableCell>
                                         </TableRow>
                                     );

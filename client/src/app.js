@@ -7,8 +7,8 @@ import Axios from 'axios';
 import Home from './Components/Home/home';
 import Login from './Components//Login/Login';
 import Order from './Components//Order/order';
-import Order_Form from './Components//Order_Form/order_form';
-import Inventory from './Components//Inventory/inventory';
+import Order_Form from './Components/Order_Form/order_form';
+import Inventory from './Components/Inventory/inventory';
 
 export default function App() {
     const [user, setUser] = useState([]);
@@ -18,12 +18,11 @@ export default function App() {
             method: 'GET',
             withCredentials: true,
             url: "http://localhost:3001/user",
+        }).then((res) => {
+            if (res.data != null) {
+                setUser(res.data);
+            }
         })
-            .then((res) => {
-                if (res.data != null) {
-                    setUser(res.data);
-                }
-            })
     }, []);
 
     return (

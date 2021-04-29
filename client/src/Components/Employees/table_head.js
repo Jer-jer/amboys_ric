@@ -8,6 +8,7 @@ const headCells = [
     { id: 'password', numeric: false, disablePadding: false, label: 'Password' },
     { id: 'number', numeric: false, disablePadding: false, label: 'Contact Number' },
     { id: 'job', numeric: false, disablePadding: false, label: 'Position' },
+    { id: 'edit', numeric: false, disablePadding: false, label: '' },
 ];
 
 export default function EnhancedTableHead(props) {
@@ -28,7 +29,19 @@ export default function EnhancedTableHead(props) {
                     />
                 </TableCell>
                 {headCells.map((headCell) => (
-                    <TableCell
+                    (headCell.id == 'edit')?
+                    (
+                        <TableCell
+                        key={headCell.id}
+                        align={headCell.numeric ? 'right' : 'left'}
+                        padding={headCell.disablePadding ? 'none' : 'default'}
+                        >
+                        <TableSortLabel>
+                            {headCell.label}
+                        </TableSortLabel>
+                    </TableCell>
+                    ) : (
+                        <TableCell
                         key={headCell.id}
                         align={headCell.numeric ? 'right' : 'left'}
                         padding={headCell.disablePadding ? 'none' : 'default'}
@@ -47,6 +60,7 @@ export default function EnhancedTableHead(props) {
                             ) : null}
                         </TableSortLabel>
                     </TableCell>
+                    )
                 ))}
             </TableRow>
         </TableHead>

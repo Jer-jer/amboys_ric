@@ -91,8 +91,8 @@ app.post('/login', (req, res, next) => {
     })(req, res, next)
 })
 
-app.delete('/delete/:id', (req, res) => {
-    const id = req.params.id
+app.delete('/delete/:empID', (req, res) => {
+    const id = req.params.empID
 
     db.query("DELETE FROM employee WHERE employeeID = ?", id, (err, result) => {
             if (err) throw err
@@ -143,8 +143,8 @@ app.get('/inventories', (req, res) => {
     })
 })
 
-app.delete('/delete_inventory/:id', (req, res) => {
-    const id = req.params.id
+app.delete('/delete_inventory/:invtID', (req, res) => {
+    const id = req.params.invtID
 
     db.query("DELETE FROM products WHERE productID = ?", id, (err, result) => {
             if (err) throw err
